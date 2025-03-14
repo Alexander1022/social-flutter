@@ -1,10 +1,12 @@
 import { ArrowLeft, Plus } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import Navbar from "./Navbar";
+import { useNavigate } from "react-router";
 
 export default function Footer() {
   const [isScrolled, setIsScrolled] = useState(false);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const handlePlusClick = () => {
     if (galleryInputRef.current) {
@@ -15,7 +17,11 @@ export default function Footer() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      console.log("Selected file:", file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        navigate('/upload', { state: { imageData: reader.result } });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -37,9 +43,9 @@ export default function Footer() {
       }`}
     >
       <div className="relative h-full max-w-6xl mx-auto">
-        <button className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-purple-600" />
-          <span className="text-purple-600 font-medium hidden md:inline">
+        <button className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-emerald-600" />
+          <span className="text-emerald-600 font-medium hidden md:inline">
             Back
           </span>
         </button>
@@ -47,7 +53,7 @@ export default function Footer() {
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <button
             onClick={handlePlusClick}
-            className="w-14 h-14 flex items-center justify-center rounded-full bg-purple-600 hover:bg-purple-700 transition-all text-white shadow-lg"
+            className="w-14 h-14 flex items-center justify-center rounded-full bg-emerald-600 hover:bg-emerald-700 transition-all text-white shadow-lg"
           >
             <Plus className="w-8 h-8" />
           </button>

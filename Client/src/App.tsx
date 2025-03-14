@@ -1,13 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router"
-import Footer from "./components/Footer"
 import Header from "./components/Header"
-import Navbar from "./components/Navbar"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Profile from "./pages/Profile"
 import NotFound from "./pages/NotFound"
 import Map from "./pages/Map"
+import Upload from "./pages/Upload"
+import Details from "./pages/Details"
+
 
 function App() {
   // change it to actual AuthChecker logic later
@@ -43,6 +44,16 @@ function App() {
         <Route
           path="/app"
           element={<Map />}
+        />
+
+        <Route 
+          path="/upload" 
+          element={<Upload />} 
+        />
+
+        <Route 
+          path="/details" 
+          element={<Details />} 
         />
 
       </Routes>
