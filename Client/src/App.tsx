@@ -7,6 +7,7 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Profile from "./pages/Profile"
 import NotFound from "./pages/NotFound"
+import Map from "./pages/Map"
 
 function App() {
   // change it to actual AuthChecker logic later
@@ -39,8 +40,12 @@ function App() {
           element={<NotFound />}
         />
 
+        <Route
+          path="/app"
+          element={<Map />}
+        />
+
       </Routes>
-      <Footer />
     </BrowserRouter>
   )
 }
