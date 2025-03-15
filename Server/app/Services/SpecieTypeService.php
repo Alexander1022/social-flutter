@@ -17,8 +17,12 @@ class SpecieTypeService
 
     public function show($id)
     {
-        $specie = SpecieType::findOrFail($id)->load('species');
-        return new SpecieTypeResource($specie);
+        try {
+            $specie = SpecieType::findOrFail($id)->load('species');
+            return new SpecieTypeResource($specie);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'No such specie type found'], 404);
+        }
     }
 
     public function store(SpecieTypeRequest $request)

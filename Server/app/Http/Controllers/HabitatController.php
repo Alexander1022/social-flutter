@@ -2,35 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\SpecieTypeService;
-use App\Http\Requests\SpecieTypeRequest;
+use App\Services\HabitatService;
+use App\Http\Requests\HabitatRequest;
 
-class SpecieTypeController
+class HabitatController
 {
-    protected $specieService;
+    protected $habitatService;
 
-    public function __construct(SpecieTypeService $specieService)
+    public function __construct(HabitatService $habitatService)
     {
-        $this->specieService = $specieService;
+        $this->habitatService = $habitatService;
     }
 
     public function index()
     {
-        return $this->specieService->index();
+        return $this->habitatService->index();
     }
 
     public function show($id)
     {
-        return  $this->specieService->show($id);
+        return  $this->habitatService->show($id);
     }
 
-    public function store(SpecieTypeRequest $request)
+    public function store(HabitatRequest $request)
     {
-        return $this->specieService->store($request);
+        return $this->habitatService->store($request);
     }
     
     public function destroy($id)
     {
-        return $this->specieService->destroy($id);
+        return $this->habitatService->destroy($id);
     }
 }

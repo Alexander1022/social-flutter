@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId('habitat_id')->constrained('habitats')->onDelete('cascade');
             $table->string('common_name')->unique();
             $table->string('scientific_name')->unique();
-            $table->integer('seen_amount')->default(0);
             $table->timestamps();
         });
     }

@@ -13,10 +13,10 @@ class LocationResource extends JsonResource
         return [
             'id' => $this->id,
             'user' => new UserResource($this->whenLoaded('user')),
-            'species' => SpecieResource::collection($this->whenLoaded('species')),
+            'specie' => new SpecieResource($this->whenLoaded('specie')),
             'lat' => $this->lat,
             'lng' => $this->lng,
-            'image_urls' => FileResource::collection($this->whenLoaded('images')),
+            'image_urls' => FileRecordResource::collection($this->whenLoaded('images')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

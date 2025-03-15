@@ -15,7 +15,6 @@ class Specie extends Model
         'habitat_id',
         'common_name',
         'scientific_name',
-        'seend_amount',
     ];
 
     public function specieTypes()

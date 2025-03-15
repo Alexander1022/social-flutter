@@ -13,8 +13,12 @@ class RoleService
         return Role::all();
     }
 
-    public function getById(int $id): Role
+    public function getById(int $id): ?Role
     {
-        return Role::findOrFail($id);
+        try {
+            return Role::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'No such location found'], 404);
+        }
     }
 }

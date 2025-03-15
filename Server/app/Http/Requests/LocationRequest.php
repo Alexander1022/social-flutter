@@ -12,9 +12,7 @@ class LocationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|numeric|exists:users,id',
-            'specie_ids' => 'nullable|array',
-            'specie_ids.*' => 'numeric|exists:species,id',
+            'specie_id' => 'required|numeric|exists:species,id',
             'lat' => 'required|numeric',
             'lng' => 'required|numeric',
             'images' => 'nullable|array',
