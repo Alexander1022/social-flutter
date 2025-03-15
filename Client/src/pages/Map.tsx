@@ -83,9 +83,9 @@ export default function MyMap() {
           return {
             position: [lat, lng] as LatLngTuple,
             imageUrl: firstImage,
-            date: new Date(loc.createdAt),
+            date: new Date(loc.created_at),
             author: loc.user?.name || "Unknown",
-            contentText: specieName,
+            contentText: loc?.specie?.scientific_name,
             altText: `Photo of ${specieName}`,
           };
         });
@@ -160,7 +160,7 @@ export default function MyMap() {
                       date={location.date}
                       author={location.author}
                       altText={`Photo by ${location.author}`}
-                      contentText={`Taken on ${location.date.toLocaleDateString()}`}
+                      contentText={location.contentText}
                     />
                   </Marker>
                 ))}
