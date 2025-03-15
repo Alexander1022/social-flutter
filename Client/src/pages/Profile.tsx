@@ -1,38 +1,21 @@
 import { useState } from 'react';
-<<<<<<< Updated upstream
-import { Camera, Trophy, CheckCircle, Settings, Star, ChevronDown } from 'lucide-react';
-import { Link } from 'react-router-dom';
-=======
 import { Edit, Camera, Trophy, CheckCircle, Settings, Star, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import UserAvatar from '../assets/default-avatar.svg';
->>>>>>> Stashed changes
 
 export default function ProfilePage() {
   const [visiblePhotos, setVisiblePhotos] = useState(6);
   const [visibleQuests, setVisibleQuests] = useState(2);
-<<<<<<< Updated upstream
 
-  const user = {
-    firstName: 'Alex',
-    lastName: 'Smith',
-    email: 'alex.smith@example.com',
-    avatar: '/avatar.jpg',
-    photos: 24,
-    totalXP: 8450,
-    level: calculateLevel(8450),
-    achievements: ['Novice Explorer', 'Plant Pro', 'Daily Streak']
-  };
-=======
   const { user } = useAuth();
->>>>>>> Stashed changes
+
 
   function calculateLevel(xp: number) {
     return Math.floor(xp / 1000) + 1;
   }
 
-  const xpForCurrentLevel = user.xp % 1000;
+  const xpForCurrentLevel = user?.data?.xp % 1000;
   const xpToNextLevel = 1000 - xpForCurrentLevel;
 
   const userPhotos = Array(12).fill(null).map((_, i) => ({
