@@ -12,5 +12,18 @@ class FileRecord extends Model
     protected $fillable = [
         'path',
         'original_name',
+        'fileable_type',
+        'fileable_id',
+        'file_type_id',
     ];
+
+    public function fileable()
+    {
+        return $this->morphTo();
+    }
+
+    public function fileType()
+    {
+        return $this->belongsTo(FileType::class);
+    }
 }
