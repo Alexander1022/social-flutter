@@ -17,8 +17,12 @@ class HabitatService
 
     public function show($id)
     {
-        $specie = Habitat::findOrFail($id)->load('species');
-        return new HabitatResource($specie);
+        try {
+            $habitat = Habitat::findOrFail($id)->load('species');
+            return new HabitatResource($habitat);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'No such habitat found'], 404);
+        }
     }
 
     public function store(HabitatRequest $request)

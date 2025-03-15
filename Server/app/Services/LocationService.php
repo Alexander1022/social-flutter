@@ -12,19 +12,25 @@ class LocationService
 {
     public function index()
     {
-        $locations = Location::with('images', 'user', 'species')->get();
+        $locations = Location::with('images', 'user', 'specie')->get();
         LocationResource::collection($locations);
     }
 
     public function show($id)
     {
-        $location = Location::findOrFail($id);
-        return new LocationResource($location);
+        try {
+            $location = Location::findOrFail($id)->load('images', 'user', 'specie');
+            return new LocationResource($location);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'No such location found'], 404);
+        }
     }
 
     public function store(LocationRequest $request)
     {
-        $location = Location::create($request->validated());
+        $data = $request->validated();
+        $data['user_id'] = auth()->user()->id; 
+        $location = Location::create($data);
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $fileType = FileType::where('name', 'image')->firstOrFail();
@@ -42,7 +48,7 @@ class LocationService
         return new LocationResource($location);
     }
 
-    public function update(Request $request, $id)
+/*     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -53,7 +59,7 @@ class LocationService
         $location = Location::findOrFail($id);
         $location->update($validatedData);
         return new LocationResource($location);
-    }
+    } */
 
     public function destroy($id)
     {

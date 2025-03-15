@@ -12,26 +12,32 @@ class SpecieService
 {
     public function index()
     {
-        $species = Specie::with('images', 'user', 'locations')->get();
+        $species = Specie::with('image', 'specieType', 'animalKingdom', 'habitat', 'user')->get();
         return SpecieResource::collection($species);
     }
 
     public function show($id)
     {
-        $specie = Specie::findOrFail($id);
-        return new SpecieResource($specie);
+        try {
+            $specie = Specie::findOrFail($id);
+            return new SpecieResource($specie);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'No such species found'], 404);
+        }
     }
 
     public function store(SpecieRequest $request)
     {
-        $specie = Specie::create($request->validated());
-        $file = $request->file('image');
-        $fileType = FileType::where('name', 'image')->first();
-        $specie->images()->create([
-            'fileable_id' => $specie->id,
-            'fileable_type' => Specie::class,
-            'path' => $file->store('species'),
-            'type_id' => $fileType->id,
+        $data = $request->validated();
+        $data['user_id'] = auth()->user()->id; // Assuming you want to set the user_id to the authenticated user
+        $specie = Specie::create($data);
+        $image = $request->file('image');
+        $fileType = FileType::where('name', 'image')->firstOrFail();
+        $path = $image->store('locations', 'public'); // Note the 'public' disk parameter
+        $specie->image()->create([
+            'path' => 'storage/' . $path,
+            'original_name' => $image->getClientOriginalName(),
+            'file_type_id' => $fileType->id,
         ]);
         return new SpecieResource($specie);
     }

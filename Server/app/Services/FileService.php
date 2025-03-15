@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\FileRecord;
-
+use App\Http\Resources\FileRecordResource;
 class FileService
 {
     public function storeFile($path, $originalName)
@@ -16,6 +16,11 @@ class FileService
 
     public function getFile($id)
     {
-        return FileRecord::findOrFail($id);
+        try {
+            $fileRecord = FileRecord::findOrFail($id);
+            return new FileRecordResource($fileRecord);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'No such file found'], 404);
+        }
     }
 }
