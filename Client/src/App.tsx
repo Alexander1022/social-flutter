@@ -11,10 +11,15 @@ import Details from "./pages/Details"
 import Challenges from "./pages/Challenges"
 import Explore from "./pages/Explore"
 import { useAuth } from "./auth/AuthContext"
+import LoadingScreen from "./pages/Loading"
 
 
 function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <BrowserRouter>
