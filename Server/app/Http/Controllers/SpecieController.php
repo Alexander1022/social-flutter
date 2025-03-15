@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SpecieRequest;
+use App\Services\SpecieService;
+
 class SpecieController
 {
     protected $specieService;
@@ -13,13 +16,16 @@ class SpecieController
 
     public function index()
     {
-        $species = $this->specieService->getAll();
-        return SpecieResource::collection($species);
+        return $this->specieService->index();
     }
 
     public function show($id)
     {
-        $specie = $this->specieService->getById($id);
-        return new SpecieResource($specie);
+        return $this->specieService->show($id);
+    }
+
+    public function store(SpecieRequest $request)
+    {
+        return $this->specieService->store($request);
     }
 }

@@ -10,6 +10,7 @@ class Specie extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'animal_kingdom_id',
         'habitat_id',
         'common_name',
@@ -17,9 +18,9 @@ class Specie extends Model
         'seend_amount',
     ];
 
-    public function species()
+    public function specieTypes()
     {
-        return $this->hasMany(Specie::class);
+        return $this->belongsToMany(SpecieType::class, 'specie_specie_type');
     }
 
     public function animalKingdom()
@@ -40,5 +41,9 @@ class Specie extends Model
     public function image()
     {
         return $this->morphOne(FileRecord::class, 'fileable');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 }

@@ -15,6 +15,6 @@ class SpecieType extends Model
 
     public function species()
     {
-        return $this->hasMany(Specie::class);
+        return $this->belongsToMany(Specie::class, 'specie_specie_type');
     }
 }
