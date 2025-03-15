@@ -33,6 +33,8 @@ interface LocationData {
   imageUrl: string;
   date: Date;
   author: string;
+  contentText: string;
+  altText: string;
 }
 
 function CenterMap({ position }: { position: LatLngTuple }) {
@@ -52,33 +54,54 @@ export default function MyMap() {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_SERVER_ENDPOINT}/api/locations`,
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_ENDPOINT}/api/locations`,
           {
             headers: {
-              'ngrok-skip-browser-warning': 'please-ngrok-we-love-you',
-              'Content-Type': 'multipart/form-data',
+              "ngrok-skip-browser-warning": "please-ngrok-we-love-you",
               Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
           }
         );
 
-        const data = response.data;
-        //console.log(data);
-        const formattedData = data.map((loc: any) => ({
-          position: [loc.lat, loc.lng],
-          imageUrl: import.meta.env.VITE_SERVER_ENDPOINT + "/" + loc.image_urls[0].path,
-          date: new Date(loc.createdAt),
-          author: loc.user.name,
-        }));
+        const responseData = response.data;
+        console.log("Full API response:", responseData);
 
-        console.log(formattedData);
+        if (!responseData.data || !Array.isArray(responseData.data)) {
+          throw new Error("Invalid response format: Expected data array");
+        }
 
+        const formattedData = responseData.data.map((loc: any) => {
+          console.log(loc);
+          const specieName = loc.specie?.common_name || "Unknown species";
+
+          const lat = parseFloat(loc.lat);
+          const lng = parseFloat(loc.lng);
+
+          const firstImage = loc.image_urls[0].url;
+          console.log(firstImage);
+          return {
+            position: [lat, lng] as LatLngTuple,
+            imageUrl: firstImage,
+            date: new Date(loc.createdAt),
+            author: loc.user?.name || "Unknown",
+            contentText: specieName,
+            altText: `Photo of ${specieName}`,
+          };
+        });
+
+        console.log("Formatted data:", formattedData);
         setLocations(formattedData);
         setError(null);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load locations"
-        );
+        console.error("Full error:", err);
+
+        if (axios.isAxiosError(err)) {
+          const message = err.response?.data?.message || err.message;
+          setError(`API Error: ${message}`);
+        } else {
+          setError(err instanceof Error ? err.message : "Unknown error");
+        }
       } finally {
         setLoading(false);
       }
@@ -117,7 +140,7 @@ export default function MyMap() {
                 <div className="text-white text-xl">Loading map data...</div>
               </div>
             )}
-            
+
             <MapContainer
               center={userPosition || [42.6977, 23.3219]}
               zoom={14}
@@ -129,17 +152,18 @@ export default function MyMap() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
 
-              {!error && locations.map((location, index) => (
-                <Marker key={index} position={location.position}>
-                  <CustomPopup
-                    imageUrl={location.imageUrl}
-                    date={location.date}
-                    author={location.author}
-                    altText={`Photo by ${location.author}`}
-                    contentText={`Taken on ${location.date.toLocaleDateString()}`}
-                  />
-                </Marker>
-              ))}
+              {!error &&
+                locations.map((location, index) => (
+                  <Marker key={index} position={location.position}>
+                    <CustomPopup
+                      imageUrl={location.imageUrl}
+                      date={location.date}
+                      author={location.author}
+                      altText={`Photo by ${location.author}`}
+                      contentText={`Taken on ${location.date.toLocaleDateString()}`}
+                    />
+                  </Marker>
+                ))}
 
               {userPosition && (
                 <>
