@@ -12,8 +12,11 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.0.14",
     "@tailwindcss/vite": "^4.0.14",
+    "@types/base-64": "^1.0.2",
     "@types/js-cookie": "^3.0.6",
     "axios": "^1.8.3",
+    "base64-to-file": "^1.1.0",
+    "buffer": "^6.0.3",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.479.0",
     "react": "^19.0.0",

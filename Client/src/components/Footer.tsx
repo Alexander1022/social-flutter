@@ -2,8 +2,13 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import Navbar from "./Navbar";
+import { LatLngTuple } from "leaflet";
 
-export default function Footer() {
+interface FooterProps {
+  userPosition: LatLngTuple | null;
+}
+
+export default function Footer({ userPosition }: FooterProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -19,7 +24,12 @@ export default function Footer() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        navigate('/upload', { state: { imageData: reader.result } });
+        navigate('/upload', { 
+          state: { 
+            imageData: reader.result,
+            coordinates: userPosition 
+          } 
+        });
       };
       reader.readAsDataURL(file);
     }
