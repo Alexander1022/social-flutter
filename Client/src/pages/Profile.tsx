@@ -34,25 +34,21 @@ export default function ProfilePage() {
   const completedQuests = [
     { 
       title: 'Daily Quest', 
-      completedDate: '2023-09-15',
       speciesFound: ['African Elephant', 'Baobab Tree'],
       rewardEarned: 500
     },
     { 
       title: 'Biodiversity Explorer', 
-      completedDate: '2023-09-10',
       speciesFound: ['Lion', 'Giraffe', 'Acacia Tree'],
       rewardEarned: 1500
     },
     { 
       title: 'Mushroom Master', 
-      completedDate: '2023-09-05',
       speciesFound: ['Fly Agaric', 'Chanterelle'],
       rewardEarned: 1000
     },
     { 
       title: 'Bird Watcher', 
-      completedDate: '2023-08-28',
       speciesFound: ['Eagle', 'Flamingo'],
       rewardEarned: 800
     }
@@ -114,13 +110,6 @@ export default function ProfilePage() {
               </div>
             </div>
             
-            <Link 
-              to="/settings" 
-              className="flex items-center gap-2 text-gray-600 hover:text-emerald-600 transition-colors"
-            >
-              <Settings className="w-5 h-5" />
-              <span className="hidden sm:inline">Edit Profile</span>
-            </Link>
           </div>
         </div>
 
@@ -176,9 +165,6 @@ export default function ProfilePage() {
                       <CheckCircle className="w-5 h-5 text-emerald-600" />
                       <h3 className="font-medium text-gray-900">{quest.title}</h3>
                     </div>
-                    <span className="text-sm text-emerald-700">
-                      {quest.completedDate}
-                    </span>
                   </div>
                   
                   <div className="ml-7">
