@@ -2,6 +2,7 @@ import type React from "react";
 import { useState } from "react";
 import { Dna } from "lucide-react";
 import Button from "../components/Button";
+import { Link } from "react-router";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-50 pt-32 pb-20 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-50 pt-24 pb-20 px-4">
       <div className="max-w-md mx-auto backdrop-blur-sm bg-white/60 border border-white/20 rounded-xl p-8 shadow-xl">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
@@ -60,12 +61,6 @@ export default function Login() {
               <label className="text-sm font-medium text-gray-700" htmlFor="password">
                 Password
               </label>
-              <a
-                href="#"
-                className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors"
-              >
-                Forgot password?
-              </a>
             </div>
             <input
               id="password"
@@ -90,12 +85,12 @@ export default function Login() {
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600">
             Don't have an account?{" "}
-            <a
-              href="/register"
+            <Link
+              to="/register"
               className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
             >
               Register
-            </a>
+            </Link>
           </p>
         </div>
       </div>

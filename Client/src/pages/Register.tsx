@@ -2,6 +2,7 @@ import type React from "react";
 import { useState } from "react";
 import { Microscope } from "lucide-react";
 import Button from "../components/Button";
+import { Link } from "react-router";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-blue-50 pt-32 pb-20 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-blue-50 pt-24 pb-20 px-4">
       <div className="max-w-md mx-auto backdrop-blur-sm bg-white/60 border border-white/20 rounded-xl p-8 shadow-xl">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
@@ -123,12 +124,12 @@ export default function Register() {
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600">
             Already have an account?{" "}
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="text-emerald-600 hover:text-emerald-700 font-medium"
             >
               Sign in
-            </a>
+            </Link>
           </p>
         </div>
       </div>

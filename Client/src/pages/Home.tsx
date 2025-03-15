@@ -19,7 +19,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="flex-1 space-y-6">
               <div className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-medium text-sm">
-                Discover Species
+                Discover the nature
               </div>
               <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
                 Explore the world of{" "}
