@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SpecieResource extends JsonResource
+class HabitatController extends JsonResource
 {
     public function toArray($request): array
     {

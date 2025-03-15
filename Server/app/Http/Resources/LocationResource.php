@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Specie;
+
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class LocationResource extends JsonResource
@@ -15,7 +16,7 @@ class LocationResource extends JsonResource
             'species' => SpecieResource::collection($this->whenLoaded('species')),
             'lat' => $this->lat,
             'lng' => $this->lng,
-            'image_urls' => $this->imageUrls,
+            'image_urls' => FileResource::collection($this->whenLoaded('images')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

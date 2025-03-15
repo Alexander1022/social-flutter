@@ -12,7 +12,8 @@ class LocationService
 {
     public function index()
     {
-        return LocationResource::collection(Location::all());
+        $locations = Location::with('images', 'user', 'species')->get();
+        LocationResource::collection($locations);
     }
 
     public function show($id)
@@ -27,9 +28,9 @@ class LocationService
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $fileType = FileType::where('name', 'image')->firstOrFail();
-                $path = $image->store('locations');
+                $path = $image->store('locations', 'public'); // Note the 'public' disk parameter
                 $location->images()->create([
-                    'path' => $path,
+                    'path' => 'storage/' . $path,
                     'original_name' => $image->getClientOriginalName(),
                     'file_type_id' => $fileType->id,
                 ]);

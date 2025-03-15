@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('species', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('animal_kingdom_id')->constrained('animal_kingdoms')->onDelete('cascade');
             $table->foreignId('habitat_id')->constrained('habitats')->onDelete('cascade');
             $table->string('common_name')->unique();
