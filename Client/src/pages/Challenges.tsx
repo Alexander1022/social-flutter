@@ -1,5 +1,3 @@
-// ChallengesPage.tsx
-import { Link } from "react-router-dom";
 import { Sword, Shield, Trophy, Clock, Zap } from "lucide-react";
 
 export default function Challenges() {

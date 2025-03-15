@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import CustomPopup from "./CustomProp";
+import CustomPopup from "../components/CustomProp";
 
 L.Marker.prototype.options.icon = L.icon({
   iconUrl: markerIcon,

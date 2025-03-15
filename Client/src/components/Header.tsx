@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Sprout } from "lucide-react";
 import Button from "./Button";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -20,14 +20,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-    const handleSignIn = () => {
-        navigate('/login');
-    }
-
-    const handleRegister = () => {
-        navigate('/register');
-    }
-
   return (
     <header
       className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -39,23 +31,22 @@ export default function Navbar() {
           <div className="flex items-center">
             <Button className="flex items-center space-x-2">
               <Sprout className="h-8 w-8 text-emerald-600" />
-              <span className="text-xl font-bold text-gray-900">
-                Fly Away
-              </span>
+              <span className="text-xl font-bold text-gray-900">Fly Away</span>
             </Button>
           </div>
 
           <div className="md:flex items-center space-x-4">
-              <button className="border-emerald-200 text-emerald-700" 
-                onClick={handleSignIn}>
-                Sign In
-              </button>
-              <Button className="border border-emerald-600 font-medium py-2 px-4 rounded bg-emerald-600 text-white"
-                onClick={handleRegister}>
-                Register
-              </Button>
+            <Link to="/login"
+              className="border-emerald-200 text-emerald-700"
+            >
+              Sign In
+            </Link>
+            <Link to="/register"
+              className="border border-emerald-600 font-medium py-2 px-4 rounded bg-emerald-600 text-white"
+            >
+              Register
+            </Link>
           </div>
-
         </div>
       </div>
     </header>
