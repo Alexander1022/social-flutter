@@ -8,6 +8,8 @@ import NotFound from "./pages/NotFound"
 import Map from "./pages/Map"
 import Upload from "./pages/Upload"
 import Details from "./pages/Details"
+import Challenges from "./pages/Challenges"
+import Explore from "./pages/Explore"
 
 
 function App() {
@@ -54,6 +56,16 @@ function App() {
         <Route 
           path="/details" 
           element={<Details />} 
+        />
+
+        <Route 
+          path="/challenges" 
+          element={<Challenges />} 
+        />
+
+        <Route 
+          path="/explore" 
+          element={<Explore />} 
         />
 
       </Routes>

@@ -22,11 +22,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 pt-32 pb-20 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-50 pt-32 pb-20 px-4">
       <div className="max-w-md mx-auto backdrop-blur-sm bg-white/60 border border-white/20 rounded-xl p-8 shadow-xl">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-            <Dna className="w-8 h-8 text-blue-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
+            <Dna className="w-8 h-8 text-emerald-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
           <p className="text-gray-600 mt-2">Sign in to your scientific account</p>
@@ -50,7 +50,7 @@ export default function Login() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-blue-100 rounded-md bg-white/80 focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-200 focus:ring-opacity-50"
+              className="w-full px-3 py-2 border border-emerald-100 rounded-md bg-white/80 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200 focus:ring-opacity-50"
               autoComplete="email"
             />
           </div>
@@ -62,7 +62,7 @@ export default function Login() {
               </label>
               <a
                 href="#"
-                className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors"
               >
                 Forgot password?
               </a>
@@ -74,14 +74,14 @@ export default function Login() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-blue-100 rounded-md bg-white/80 focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-200 focus:ring-opacity-50"
+              className="w-full px-3 py-2 border border-emerald-100 rounded-md bg-white/80 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200 focus:ring-opacity-50"
               autoComplete="current-password"
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full border rounded py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+            className="w-full border rounded py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
           >
             Sign In
           </Button>
@@ -92,7 +92,7 @@ export default function Login() {
             Don't have an account?{" "}
             <a
               href="/register"
-              className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
             >
               Register
             </a>
