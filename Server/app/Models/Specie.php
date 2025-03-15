@@ -11,7 +11,6 @@ class Specie extends Model
 
     protected $fillable = [
         'animal_kingdom_id',
-        'specie_type_id',
         'habitat_id',
         'common_name',
         'scientific_name',

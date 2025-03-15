@@ -11,7 +11,6 @@ class Location extends Model
 
     protected $fillable = [
         'user_id',
-        'specie_id',
         'lat',
         'lng',
     ];
@@ -23,5 +22,14 @@ class Location extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function images(){
+        return $this->morphMany(FileRecord::class, 'fileable');
+    }
+
+    public function getImageUrlsAttribute()
+    {
+        return $this->images->map(fn($image) => url($image->path));
     }
 }
