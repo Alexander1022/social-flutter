@@ -13,7 +13,6 @@ import Explore from "./pages/Explore"
 import { useAuth } from "./auth/AuthContext"
 import LoadingScreen from "./pages/Loading"
 
-
 function App() {
   const { isAuthenticated, isLoading } = useAuth();
 

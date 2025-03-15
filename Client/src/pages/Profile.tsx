@@ -7,9 +7,7 @@ import UserAvatar from '../assets/default-avatar.svg';
 export default function ProfilePage() {
   const [visiblePhotos, setVisiblePhotos] = useState(6);
   const [visibleQuests, setVisibleQuests] = useState(2);
-
   const { user } = useAuth();
-
 
   function calculateLevel(xp: number) {
     return Math.floor(xp / 1000) + 1;
