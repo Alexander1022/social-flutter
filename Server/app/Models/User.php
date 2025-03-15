@@ -53,4 +53,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Location::class);
     }
+    public function achievements()     
+    {         
+        return $this->belongsToMany(Achievement::class, 'user_achievement')
+            ->withPivot('points')
+            ->withTimestamps();
+    } 
 }

@@ -20,6 +20,7 @@ class SpecieService
     {
         try {
             $specie = Specie::findOrFail($id);
+            $specie->load('image', 'specieType', 'animalKingdom', 'habitat', 'user');
             return new SpecieResource($specie);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => 'No such species found'], 404);

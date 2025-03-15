@@ -12,11 +12,11 @@ class LocationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'specie_id' => 'required|numeric|exists:species,id',
+            'specie_id' => 'nullable|numeric|exists:species,id',
             'lat' => 'required|numeric',
             'lng' => 'required|numeric',
             'images' => 'nullable|array',
-            'images.*' => 'file|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'file|mimes:jpeg,png,jpg,gif',
         ];
     }
 }

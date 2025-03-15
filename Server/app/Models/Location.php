@@ -24,7 +24,10 @@ class Location extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function images(){
-        return $this->morphMany(FileRecord::class, 'fileable');
+    public function images()
+    {
+        $imageTypeId = FileType::where('name', 'image')->first()->id;
+        return $this->morphMany(FileRecord::class, 'fileable')
+            ->where('file_type_id', $imageTypeId);
     }
 }

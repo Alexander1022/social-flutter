@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Specie;
-
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class LocationResource extends JsonResource

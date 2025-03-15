@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LocationRequest;
-use App\Http\Resources\LocationResource;
 use App\Services\LocationService;
-use Illuminate\Http\Request;
 
 class LocationController
 {
@@ -28,5 +26,10 @@ class LocationController
     public function store(LocationRequest $request)
     {
         return $this->locationService->store($request);
+    }
+
+    public function getUserLocations()
+    {
+        return $this->locationService->getUserLocations();
     }
 }

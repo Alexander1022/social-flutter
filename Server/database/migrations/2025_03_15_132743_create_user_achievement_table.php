@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('specie_specie_type', function (Blueprint $table) {
+        Schema::create('user_achievement', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('specie_id')->nullable();
-            $table->foreignId('specie_type_id')->constrained('specie_types')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('achievement_id')->constrained()->onDelete('cascade');
+            $table->integer('points')->default(0);
             $table->timestamps();
-            $table->foreign('specie_id')->references('id')->on('species')->onDelete('set null');
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('species');
+        Schema::dropIfExists('user_achievement');
     }
 };
