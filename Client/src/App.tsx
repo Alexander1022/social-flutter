@@ -10,11 +10,11 @@ import Upload from "./pages/Upload"
 import Details from "./pages/Details"
 import Challenges from "./pages/Challenges"
 import Explore from "./pages/Explore"
+import { useAuth } from "./auth/AuthContext"
 
 
 function App() {
-  // change it to actual AuthChecker logic later
-  const isAuthenticated = false;
+  const { isAuthenticated } = useAuth();
 
   return (
     <BrowserRouter>

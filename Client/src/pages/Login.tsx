@@ -3,23 +3,45 @@ import { useState } from "react";
 import { Dna } from "lucide-react";
 import Button from "../components/Button";
 import { Link } from "react-router";
+import { useAuth } from "../auth/AuthContext";
+import axios from "axios";
 
 export default function Login() {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    console.log("Login data:", formData);
+    try {
+      setIsSubmitting(true);
+      setError("");
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_ENDPOINT}/api/login`,
+        {
+          email: formData.email,
+          password: formData.password,
+        }
+      );
+      if (response.status === 200) {
+        localStorage.setItem("authToken", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        await login(response.data.token);
+      }
+    } catch (error: any) {
+      setError(error.response);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -30,7 +52,9 @@ export default function Login() {
             <Dna className="w-8 h-8 text-emerald-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-600 mt-2">Sign in to your scientific account</p>
+          <p className="text-gray-600 mt-2">
+            Sign in to your scientific account
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -41,7 +65,10 @@ export default function Login() {
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="email">
+            <label
+              className="text-sm font-medium text-gray-700"
+              htmlFor="email"
+            >
               Email Address
             </label>
             <input
@@ -58,7 +85,10 @@ export default function Login() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700" htmlFor="password">
+              <label
+                className="text-sm font-medium text-gray-700"
+                htmlFor="password"
+              >
                 Password
               </label>
             </div>
@@ -76,9 +106,10 @@ export default function Login() {
 
           <Button
             type="submit"
+            disabled={isSubmitting}
             className="w-full border rounded py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
           >
-            Sign In
+            {isSubmitting ? "Logging In..." : "Sign In"}
           </Button>
         </form>
 

@@ -2,9 +2,11 @@ import type React from "react";
 import { useState } from "react";
 import { Microscope } from "lucide-react";
 import Button from "../components/Button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import axios from "axios";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -12,20 +14,39 @@ export default function Register() {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-    setError("");
-    console.log("Registration data:", formData);
+    try {
+      setIsSubmitting(true);
+      setError("");
+      console.log(formData);
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_ENDPOINT}/api/register`,
+        {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }
+      );
+      if (response.status === 201) {
+        navigate("/login");
+      }
+    } catch (error: any) {
+      setError(error.response.data.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -66,7 +87,10 @@ export default function Register() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="email">
+            <label
+              className="text-sm font-medium text-gray-700"
+              htmlFor="email"
+            >
               Email Address
             </label>
             <input
@@ -82,13 +106,17 @@ export default function Register() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="password">
+            <label
+              className="text-sm font-medium text-gray-700"
+              htmlFor="password"
+            >
               Password
             </label>
             <input
               id="password"
               name="password"
               type="password"
+              minLength={8}
               value={formData.password}
               onChange={handleChange}
               required
@@ -98,13 +126,17 @@ export default function Register() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="confirmPassword">
+            <label
+              className="text-sm font-medium text-gray-700"
+              htmlFor="confirmPassword"
+            >
               Confirm Password
             </label>
             <input
               id="confirmPassword"
               name="confirmPassword"
               type="password"
+              minLength={8}
               value={formData.confirmPassword}
               onChange={handleChange}
               required
@@ -114,10 +146,11 @@ export default function Register() {
           </div>
 
           <Button
+            disabled={isSubmitting}
             type="submit"
             className="border rounded-2xl w-full bg-emerald-600 hover:bg-emerald-700 text-white transition-colors py-2 px-4"
           >
-            Register
+            {isSubmitting ? "Creating Account..." : "Register"}
           </Button>
         </form>
 

@@ -1,10 +1,18 @@
 import { useState } from 'react';
+<<<<<<< Updated upstream
 import { Camera, Trophy, CheckCircle, Settings, Star, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+=======
+import { Edit, Camera, Trophy, CheckCircle, Settings, Star, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router';
+import { useAuth } from '../auth/AuthContext';
+import UserAvatar from '../assets/default-avatar.svg';
+>>>>>>> Stashed changes
 
 export default function ProfilePage() {
   const [visiblePhotos, setVisiblePhotos] = useState(6);
   const [visibleQuests, setVisibleQuests] = useState(2);
+<<<<<<< Updated upstream
 
   const user = {
     firstName: 'Alex',
@@ -16,12 +24,15 @@ export default function ProfilePage() {
     level: calculateLevel(8450),
     achievements: ['Novice Explorer', 'Plant Pro', 'Daily Streak']
   };
+=======
+  const { user } = useAuth();
+>>>>>>> Stashed changes
 
   function calculateLevel(xp: number) {
     return Math.floor(xp / 1000) + 1;
   }
 
-  const xpForCurrentLevel = user.totalXP % 1000;
+  const xpForCurrentLevel = user.xp % 1000;
   const xpToNextLevel = 1000 - xpForCurrentLevel;
 
   const userPhotos = Array(12).fill(null).map((_, i) => ({
@@ -57,28 +68,27 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Profile Header */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6 lg:mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <div className="relative group">
               <div className="relative">
                 <img 
-                  src={user.avatar} 
+                  src={UserAvatar} 
                   alt="Profile" 
                   className="w-24 h-24 rounded-full object-cover border-4 border-emerald-100"
                 />
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
                   <Star className="w-4 h-4 fill-current" />
-                  <span>{user.level}</span>
+                  <span>{user?.xp}</span>
                 </div>
               </div>
             </div>
             
             <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
-                {user.firstName} {user.lastName}
+                {user?.data?.name}
               </h1>
-              <p className="text-gray-600 mb-3">{user.email}</p>
+              <p className="text-gray-600 mb-3">{user?.data?.email}</p>
               
               <div className="space-y-2">
                 <div className="flex items-center gap-4 text-sm sm:text-base">
@@ -88,14 +98,14 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex items-center gap-2 text-purple-600">
                     <Trophy className="w-5 h-5" />
-                    <span>{user.totalXP} XP</span>
+                    <span>{user?.data?.xp} XP</span>
                   </div>
                 </div>
                 
                 <div className="pt-2 max-w-md">
                   <div className="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Lv. {user.level}</span>
-                    <span>Lv. {user.level + 1}</span>
+                    <span>Lv. {user?.data?.xp}</span>
+                    <span>Lv. {user?.data?.xp + 1}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div 

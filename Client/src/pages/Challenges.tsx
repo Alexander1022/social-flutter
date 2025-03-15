@@ -44,7 +44,7 @@ export default function Challenges() {
               className="bg-white rounded-xl p-6 border border-gray-200 hover:border-emerald-400 transition-all group relative overflow-hidden shadow-sm hover:shadow-md"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              
+
               <div className="flex items-start gap-4 mb-4">
                 <div className="p-3 bg-gray-100 rounded-lg">
                   {challenge.icon}

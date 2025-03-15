@@ -1,6 +1,6 @@
 import { ArrowLeft, Plus } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import Navbar from "./Navbar";
 
 export default function Footer() {
