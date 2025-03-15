@@ -1,7 +1,7 @@
 import { ArrowLeft, Plus } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
-import { useNavigate } from "react-router";
 
 export default function Footer() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -43,7 +43,10 @@ export default function Footer() {
       }`}
     >
       <div className="relative h-full max-w-6xl mx-auto">
-        <button className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors">
+        <button 
+          className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors"
+          onClick={() => navigate(-1)}
+        >
           <ArrowLeft className="w-5 h-5 text-emerald-600" />
           <span className="text-emerald-600 font-medium hidden md:inline">
             Back
@@ -63,6 +66,7 @@ export default function Footer() {
           <Navbar />
         </div>
       </div>
+
       <input
         type="file"
         accept="image/*"

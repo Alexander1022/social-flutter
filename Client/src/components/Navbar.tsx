@@ -8,7 +8,6 @@ export default function Navbar() {
 
   return (
     <nav className="flex items-center gap-4 md:gap-6">
-      {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-4">
         <Link to="/challenges">
           <Button className="text-gray-700 hover:text-emerald-600 font-medium inline-flex items-center gap-2">
@@ -24,7 +23,6 @@ export default function Navbar() {
         </Link>
       </div>
 
-      {/* Mobile Menu Toggle */}
       <div className="md:hidden">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -35,7 +33,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute bottom-16 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-4">
           <div className="flex flex-col gap-3">
