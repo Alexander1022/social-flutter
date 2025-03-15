@@ -25,7 +25,10 @@ function App() {
       <Header />
       <Routes>
       
-        <Route path="/" element={<Home />} />
+        <Route 
+          path="/" 
+          element={isAuthenticated ? <Map /> : <Home />}
+        />
         
         <Route 
           path="/login" 
@@ -49,7 +52,7 @@ function App() {
 
         <Route
           path="/app"
-          element={<Map />}
+          element={isAuthenticated ? <Map /> : <Home />}
         />
 
         <Route 
