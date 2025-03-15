@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HabitatController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LocationController;
@@ -15,5 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'getUser']);
 
     Route::resource('species', SpecieController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
-    Route::resource('specie-types', SpecieTypeController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+    Route::resource('specie-types', SpecieTypeController::class)->only(['index', 'show', 'store', 'destroy']);
+    Route::resource('habitats', HabitatController::class)->only(['index', 'show', 'store', 'destroy']);
+
 });
