@@ -9,7 +9,6 @@ export default function Upload() {
   const [isLoading, setIsLoading] = useState(false);
   const imageData = location.state?.imageData;
 
-  // Mock species data
   const mockSpeciesInfo = {
     animal: {
       name: "African Elephant",
@@ -34,7 +33,6 @@ export default function Upload() {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     navigate('/details', { 
       state: { 
@@ -50,7 +48,6 @@ export default function Upload() {
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20 lg:pb-8">
       <div className="max-w-4xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-          {/* Image Preview Section */}
           <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-4 sm:p-6 transition-all duration-300 hover:shadow-sm">
             {imageData && (
               <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-50">
@@ -65,7 +62,6 @@ export default function Upload() {
             )}
           </div>
 
-          {/* Controls Section */}
           <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-4 sm:p-6 flex flex-col justify-between">
             <div className="space-y-4 sm:space-y-6">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
@@ -94,33 +90,32 @@ export default function Upload() {
               </div>
             </div>
 
-            {/* Submit Button Section */}
             {selectedCategory && (
               <div className="sticky bottom-0 mt-6 pt-4 bg-white border-t border-gray-100 lg:border-none">
-                <button
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                  className={`
-                    w-full py-3 sm:py-3.5 px-6 bg-emerald-600 hover:bg-emerald-700 
-                    text-white rounded-lg transition-all duration-200
+                    <button
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                    className={`
+                        w-full py-3 sm:py-3.5 px-6 bg-emerald-600 hover:bg-emerald-700 
+                        text-white rounded-lg transition-all duration-200
                     text-sm sm:text-base font-medium
-                    ${isLoading ? 'cursor-not-allowed opacity-90' : 'hover:shadow-sm'}
-                  `}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                      <span>Analyzing...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="lg:hidden">Submit</span>
-                      <span className="hidden lg:inline">Submit Identification</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
+                        ${isLoading ? 'cursor-not-allowed opacity-90' : 'hover:shadow-sm'}
+                    `}
+                    >
+                    {isLoading ? (
+                        <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                        <span>Analyzing...</span>
+                        </div>
+                    ) : (
+                        <>
+                        <span className="lg:hidden">Submit</span>
+                        <span className="hidden lg:inline">Submit Identification</span>
+                        </>
+                    )}
+                    </button>
+                </div>
+                )}
           </div>
         </div>
       </div>

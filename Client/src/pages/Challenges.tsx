@@ -9,7 +9,6 @@ export default function Challenges() {
       progress: 3,
       total: 5,
       reward: 500,
-      timeLeft: "4h 12m",
       icon: <Zap className="w-8 h-8 text-yellow-500" />,
     },
     {
@@ -18,7 +17,6 @@ export default function Challenges() {
       progress: 12,
       total: 20,
       reward: 2500,
-      timeLeft: "6d",
       icon: <Trophy className="w-8 h-8 text-purple-500" />,
     },
     {
@@ -27,7 +25,6 @@ export default function Challenges() {
       progress: 1,
       total: 3,
       reward: 1500,
-      timeLeft: "2d",
       icon: <Shield className="w-8 h-8 text-blue-500" />,
     },
   ];
@@ -74,19 +71,12 @@ export default function Challenges() {
                   <span className="text-emerald-600">
                     {challenge.progress}/{challenge.total}
                   </span>
-                  <span className="text-gray-500 flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    {challenge.timeLeft}
-                  </span>
                 </div>
 
                 <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                   <span className="text-gray-900 font-medium">
                     Reward: {challenge.reward} XP
                   </span>
-                  <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors">
-                    Start
-                  </button>
                 </div>
               </div>
             </div>

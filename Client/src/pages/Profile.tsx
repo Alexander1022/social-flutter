@@ -1,14 +1,11 @@
-// ProfilePage.tsx
 import { useState } from 'react';
-import { Edit, Camera, Trophy, CheckCircle, Settings, Star, ChevronDown } from 'lucide-react';
+import { Camera, Trophy, CheckCircle, Settings, Star, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ProfilePage() {
-  // State for visible items
   const [visiblePhotos, setVisiblePhotos] = useState(6);
   const [visibleQuests, setVisibleQuests] = useState(2);
 
-  // Mock data
   const user = {
     firstName: 'Alex',
     lastName: 'Smith',
@@ -27,7 +24,6 @@ export default function ProfilePage() {
   const xpForCurrentLevel = user.totalXP % 1000;
   const xpToNextLevel = 1000 - xpForCurrentLevel;
 
-  // Extended mock data
   const userPhotos = Array(12).fill(null).map((_, i) => ({
     id: i,
     image: `/photo-${i+1}.jpg`,
@@ -80,9 +76,6 @@ export default function ProfilePage() {
                   <span>{user.level}</span>
                 </div>
               </div>
-              <button className="absolute top-0 right-0 bg-white p-1.5 rounded-full shadow-sm border border-gray-200 hover:bg-emerald-50 transition-colors">
-                <Edit className="w-5 h-5 text-gray-600" />
-              </button>
             </div>
             
             <div className="flex-1">
@@ -103,7 +96,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 
-                {/* Level Progress */}
                 <div className="pt-2 max-w-md">
                   <div className="flex justify-between text-sm text-gray-600 mb-1">
                     <span>Lv. {user.level}</span>
@@ -132,9 +124,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-          {/* Photos Section */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Camera className="w-6 h-6 text-emerald-600" />
@@ -172,7 +162,6 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Completed Quests Section */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Trophy className="w-6 h-6 text-purple-600" />
