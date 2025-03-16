@@ -17,4 +17,10 @@ class SpecieType extends Model
     {
         return $this->belongsToMany(Specie::class, 'specie_specie_type');
     }
+
+    public function achievements()
+    {
+        return $this->belongsToMany(Achievement::class, 'achievement_specie_type')
+            ->withTimestamps();
+    }
 }

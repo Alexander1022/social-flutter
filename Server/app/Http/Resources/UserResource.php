@@ -13,6 +13,8 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'xp' => $this->xp,
+            'locations' => LocationResource::collection($this->whenLoaded('locations')),
+            'achievements' => AchievementResource::collection($this->whenLoaded('achievements')),
             'roles' => $this->getRoleNames(),
         ];
     }

@@ -28,6 +28,10 @@ class AchievementService
     public function store(AchievementRequest $request)
     {
         $achievement = Achievement::create($request->validated());
+        $specieTypes = $request->input('specie_types', []);
+        $achievement->specieTypes()->sync($specieTypes);
+        
+        $achievement->load('users', 'specieTypes');
         return new AchievementResource($achievement);
     }
 

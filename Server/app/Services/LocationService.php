@@ -6,6 +6,7 @@ use App\Models\Location;
 use App\Models\Specie;
 use App\Models\FileType;
 use App\Models\FileRecord;
+use App\Models\Achievement;
 use App\Http\Resources\LocationResource;
 use App\Http\Requests\LocationRequest;
 
@@ -116,7 +117,56 @@ class LocationService
             ]);
             $fileRecord->save();
         }
-        // Load relationships
+
+        $achievements = Achievement::whereHas('specieTypes', function ($query) use ($specie) {
+            $query->where('specie_type_id', $specie->id);
+        })->get();
+
+        // Process each achievement
+        foreach ($achievements as $achievement) {
+            // Get current user's progress for this achievement
+            $userAchievement = $achievement->users()
+                ->wherePivot('user_id', auth()->user()->id)
+                ->first();
+
+            // If user doesn't have this achievement yet, create it with 1 point
+            if (!$userAchievement) {
+                $achievement->users()->attach(auth()->user()->id, ['points' => 1]);
+
+                // Check if completed with just 1 point
+                if ($achievement->points_to_complete <= 1) {
+                    // Award XP to user
+                    $user = auth()->user();
+                    $user->xp += $achievement->reward_xp;
+                    $user->save();
+                }
+            }
+            // User already has this achievement
+            else {
+                // Get current points
+                $currentPoints = $userAchievement->pivot->points;
+
+                // Only update if not already completed
+                if ($currentPoints < $achievement->points_to_complete) {
+                    // Increment points
+                    $newPoints = $currentPoints + 1;
+
+                    // Update the points
+                    $achievement->users()->updateExistingPivot(auth()->user()->id, [
+                        'points' => $newPoints
+                    ]);
+
+                    // Check if achievement is now complete
+                    if ($newPoints == $achievement->points_to_complete) {
+                        // Award XP to user
+                        $user = auth()->user();
+                        $user->xp += $achievement->reward_xp;
+                        $user->save();
+                    }
+                }
+            }
+        }
+
         $location->load('images', 'user', 'specie');
 
         return response()->json(['message' => 'Location created successfully', 'fun_fact' => $this->mockFunFact($bestSpecies), 'location' => new LocationResource($location)]);
