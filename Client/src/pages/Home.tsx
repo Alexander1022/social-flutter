@@ -36,10 +36,6 @@ export default function Home() {
                 >
                   Get Started
                 </Link>
-
-                <Button className="border-emerald-200 text-emerald-700">
-                  <Link to="/app">Try Demo</Link>
-                </Button>
               </div>
             </div>
             <div className="flex-1 relative">
