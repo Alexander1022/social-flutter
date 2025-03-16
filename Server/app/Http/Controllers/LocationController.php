@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LocationRequest;
 use App\Services\LocationService;
+use Illuminate\Http\Request;
 
 class LocationController
 {
@@ -14,9 +15,9 @@ class LocationController
         $this->locationService = $locationService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->locationService->index();
+        return $this->locationService->index($request);
     }
 
     public function show($id)

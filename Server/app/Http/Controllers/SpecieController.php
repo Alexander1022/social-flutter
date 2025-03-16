@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SpecieRequest;
 use App\Services\SpecieService;
+use Illuminate\Http\Request;
 
 class SpecieController
 {
@@ -14,9 +15,9 @@ class SpecieController
         $this->specieService = $specieService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->specieService->index();
+        return $this->specieService->index($request);
     }
 
     public function show($id)

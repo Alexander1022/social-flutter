@@ -9,12 +9,41 @@ use App\Models\FileRecord;
 use App\Models\Achievement;
 use App\Http\Resources\LocationResource;
 use App\Http\Requests\LocationRequest;
+use Illuminate\Http\Request;
 
 class LocationService
 {
-    public function index()
+    public function index(Request $request)
     {
-        $locations = Location::with('images', 'user', 'specie')->get();
+        $query = Location::with('images', 'user', 'specie');
+
+        $lat = $request->query('lat');
+        $lng = $request->query('lng');
+        $search = $request->query('search');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        $kilometers = $request->query('kilometers');
+
+        if ($lat && $lng && $kilometers) {
+            $query->whereRaw("ST_Distance_Sphere(point(lng, lat), point(?, ?)) <= ?", [$lng, $lat, $kilometers * 1000]);
+        }
+
+        if ($search) {
+            $query->whereHas('specie', function ($q) use ($search) {
+                $q->where('common_name', 'like', '%' . $search . '%')
+                    ->orWhere('scientific_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $locations = $query->get();
         return LocationResource::collection($locations);
     }
 
@@ -38,7 +67,10 @@ class LocationService
 
         foreach ($images as $image) {
             try {
-                $response = $client->post('http://10.108.4.159:5000/predict', [
+                $response = $client->post(config('services.flask_ai.url'), [
+                    'headers' => [
+                        'X-API-Key' => config('services.flask_ai.api_key'),
+                    ],
                     'multipart' => [
                         [
                             'name' => 'file',
