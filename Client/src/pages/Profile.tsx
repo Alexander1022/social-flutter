@@ -1,27 +1,94 @@
-import { useState } from 'react';
-import { Edit, Camera, Trophy, CheckCircle, Settings, Star, ChevronDown } from 'lucide-react';
-import { Link } from 'react-router';
+import { useEffect, useState } from 'react';
+import { Camera, Trophy, CheckCircle, Star, ChevronDown } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import UserAvatar from '../assets/default-avatar.svg';
+import axios from 'axios';
+
+interface Photo {
+  id: string
+  imageUrl: string;
+  date: Date;
+  contentText: string;
+  altText: string;
+}
 
 export default function ProfilePage() {
   const [visiblePhotos, setVisiblePhotos] = useState(6);
   const [visibleQuests, setVisibleQuests] = useState(2);
   const { user } = useAuth();
 
+  console.log('user', user);
+
   function calculateLevel(xp: number) {
-    return Math.floor(xp / 1000) + 1;
+    return Math.floor(Math.sqrt(xp / 100));
   }
 
-  const xpForCurrentLevel = user?.data?.xp % 1000;
-  const xpToNextLevel = 1000 - xpForCurrentLevel;
+  function calculateXpForLevel(level: number) {
+    return level * level * 100;
+  }
 
-  const userPhotos = Array(12).fill(null).map((_, i) => ({
-    id: i,
-    image: `/photo-${i+1}.jpg`,
-    date: `2023-09-${String(i+1).padStart(2, '0')}`,
-    species: ['African Elephant', 'Baobab Tree', 'Fly Agaric'][i % 3]
-  }));
+  const currentLevel = calculateLevel(426);
+  const xpForCurrentLevel = calculateXpForLevel(currentLevel);
+  const xpToNextLevel = calculateXpForLevel(currentLevel + 1) - 426;
+
+  const [userPhotos, setUserPhotos] = useState<Photo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_ENDPOINT}/api/user/my-locations`,
+          {
+            headers: {
+              "ngrok-skip-browser-warning": "please-ngrok-we-love-you",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }
+        );
+
+        const responseData = response.data;
+        console.log("Full API response:", responseData);
+
+        if (!responseData.data || !Array.isArray(responseData.data)) {
+          throw new Error("Invalid response format: Expected data array");
+        }
+
+        const formattedData = responseData.data.map((loc: any) => {
+          console.log('loc', loc);
+          const specieName = loc.specie?.common_name || "Unknown species";
+
+          const firstImage = loc.image_urls[0]?.url;
+          console.log(firstImage);
+          return {
+            id: loc.id,
+            imageUrl: firstImage,
+            date: new Date(loc.created_at),
+            contentText: loc?.specie?.scientific_name,
+            altText: `Photo of ${specieName}`,
+          } as Photo;
+        });
+
+        console.log("Formatted data:", formattedData);
+        setUserPhotos(formattedData);
+        setError(null);
+      } catch (err) {
+        console.error("Full error:", err);
+
+        if (axios.isAxiosError(err)) {
+          const message = err.response?.data?.message || err.message;
+          setError(`API Error: ${message}`);
+        } else {
+          setError(err instanceof Error ? err.message : "Unknown error");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLocations();
+  }, []);
 
   const completedQuests = [
     { 
@@ -46,9 +113,15 @@ export default function ProfilePage() {
     }
   ];
 
+  console.log('user photos', userPhotos);
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
+      {loading && (
+        <div className="absolute inset-0 bg-gray-500/50 flex items-center justify-center z-50">
+          <div className="text-white text-xl">Loading map data...</div>
+        </div>
+        )}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6 lg:mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <div className="relative group">
@@ -60,7 +133,7 @@ export default function ProfilePage() {
                 />
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
                   <Star className="w-4 h-4 fill-current" />
-                  <span>{user?.xp}</span>
+                  <span>{user?.data?.xp}</span>
                 </div>
               </div>
             </div>
@@ -75,7 +148,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-4 text-sm sm:text-base">
                   <div className="flex items-center gap-2 text-emerald-600">
                     <Camera className="w-5 h-5" />
-                    <span>{user.photos} Observations</span>
+                    <span>{userPhotos.length} Observations</span>
                   </div>
                   <div className="flex items-center gap-2 text-purple-600">
                     <Trophy className="w-5 h-5" />
@@ -85,8 +158,8 @@ export default function ProfilePage() {
                 
                 <div className="pt-2 max-w-md">
                   <div className="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Lv. {user?.data?.xp}</span>
-                    <span>Lv. {user?.data?.xp + 1}</span>
+                    <span>Lv. {currentLevel}</span>
+                    <span>Lv. {currentLevel + 1}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div 
@@ -115,14 +188,18 @@ export default function ProfilePage() {
               {userPhotos.slice(0, visiblePhotos).map((photo) => (
                 <div key={photo.id} className="relative group aspect-square">
                   <img
-                    src={photo.image}
-                    alt={photo.species}
+                    src={photo.imageUrl}
+                    alt={photo.altText}
                     className="w-full h-full object-cover rounded-lg transition-transform group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg p-2 flex items-end opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="text-white">
-                      <p className="text-sm font-medium">{photo.species}</p>
-                      <p className="text-xs">{photo.date}</p>
+                      <p className="text-sm font-medium">{photo.contentText}</p>
+                      <p className="text-xs">{photo.date.toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}</p>
                     </div>
                   </div>
                 </div>
@@ -195,6 +272,14 @@ export default function ProfilePage() {
                   <ChevronDown className="w-5 h-5" />
                   View More Quests
                 </button>
+              </div>
+            )}
+
+            {error && (
+              <div className="absolute inset-0 bg-red-500/50 flex items-center justify-center z-50">
+                <div className="text-white text-xl text-center">
+                  Error loading locations: {error}
+                </div>
               </div>
             )}
           </div>
