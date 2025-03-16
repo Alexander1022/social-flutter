@@ -3,7 +3,6 @@ import { Sword, Shield, Trophy, Clock, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Challenges() {
-  // Mock challenges data
   const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +48,7 @@ export default function Challenges() {
       } catch (err) {
         if (axios.isAxiosError(err)) {
           const message = err.response?.data?.message || err.message;
-          setError(`API Error: ${message}`);
+          setError(`${message}`);
         } else {
           setError(err instanceof Error ? err.message : "Unknown error");
         }
