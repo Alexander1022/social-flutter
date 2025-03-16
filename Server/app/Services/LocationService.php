@@ -9,12 +9,41 @@ use App\Models\FileRecord;
 use App\Models\Achievement;
 use App\Http\Resources\LocationResource;
 use App\Http\Requests\LocationRequest;
+use Illuminate\Http\Request;
 
 class LocationService
 {
-    public function index()
+    public function index(Request $request)
     {
-        $locations = Location::with('images', 'user', 'specie')->get();
+        $query = Location::with('images', 'user', 'specie');
+
+        $lat = $request->query('lat');
+        $lng = $request->query('lng');
+        $search = $request->query('search');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        $kilometers = $request->query('kilometers');
+
+        if ($lat && $lng && $kilometers) {
+            $query->whereRaw("ST_Distance_Sphere(point(lng, lat), point(?, ?)) <= ?", [$lng, $lat, $kilometers * 1000]);
+        }
+
+        if ($search) {
+            $query->whereHas('specie', function ($q) use ($search) {
+                $q->where('common_name', 'like', '%' . $search . '%')
+                    ->orWhere('scientific_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $locations = $query->get();
         return LocationResource::collection($locations);
     }
 
@@ -38,7 +67,10 @@ class LocationService
 
         foreach ($images as $image) {
             try {
-                $response = $client->post('http://10.108.4.159:5000/predict', [
+                $response = $client->post(config('services.flask_ai.url'), [
+                    'headers' => [
+                        'X-API-Key' => config('services.flask_ai.api_key'),
+                    ],
                     'multipart' => [
                         [
                             'name' => 'file',
@@ -90,20 +122,18 @@ class LocationService
         }
         $specie = Specie::where('scientific_name', $bestSpecies)->first();
         if (!$specie) {
+            
             return response()->json(['message' => 'No species found in database'], 404);
         }
 
-        // Add specie_id to the data array
         $data['user_id'] = auth()->user()->id;
         $data['specie_id'] = $specie->id;
 
-        // Add additional fields to data
         $data['confidence'] = $highestConfidence;
         $data['species_name'] = $bestSpecies;
 
         $location = Location::create($data);
 
-        // Store only the images for the best species
         foreach ($speciesGroups[$bestSpecies]['images'] as $image) {
             $fileType = FileType::where('name', 'image')->firstOrFail();
             $path = $image->store('locations', 'public');
@@ -122,43 +152,31 @@ class LocationService
             $query->where('specie_type_id', $specie->id);
         })->get();
 
-        // Process each achievement
         foreach ($achievements as $achievement) {
-            // Get current user's progress for this achievement
             $userAchievement = $achievement->users()
                 ->wherePivot('user_id', auth()->user()->id)
                 ->first();
 
-            // If user doesn't have this achievement yet, create it with 1 point
             if (!$userAchievement) {
                 $achievement->users()->attach(auth()->user()->id, ['points' => 1]);
 
-                // Check if completed with just 1 point
                 if ($achievement->points_to_complete <= 1) {
-                    // Award XP to user
                     $user = auth()->user();
                     $user->xp += $achievement->reward_xp;
                     $user->save();
                 }
             }
-            // User already has this achievement
             else {
-                // Get current points
                 $currentPoints = $userAchievement->pivot->points;
 
-                // Only update if not already completed
                 if ($currentPoints < $achievement->points_to_complete) {
-                    // Increment points
                     $newPoints = $currentPoints + 1;
 
-                    // Update the points
                     $achievement->users()->updateExistingPivot(auth()->user()->id, [
                         'points' => $newPoints
                     ]);
 
-                    // Check if achievement is now complete
                     if ($newPoints == $achievement->points_to_complete) {
-                        // Award XP to user
                         $user = auth()->user();
                         $user->xp += $achievement->reward_xp;
                         $user->save();

@@ -10,9 +10,30 @@ use App\Http\Requests\SpecieRequest;
 
 class SpecieService
 {
-    public function index()
+    public function index(Request $request)
     {
-        $species = Specie::with('image', 'specieType', 'animalKingdom', 'habitat', 'user')->get();
+        $query = Specie::with('images', 'specieType', 'animalKingdom', 'habitat', 'user');
+
+        $search = $request->query('search');
+        $specieTypeIds = $request->query('specie_type_ids');
+        $habitatId = $request->query('habitat_id');
+        
+
+        if ($search) {
+            $query->where('common_name', 'like', '%' . $search . '%')
+                ->orWhere('scientific_name', 'like', '%' . $search . '%');
+        }
+
+        if ($specieTypeIds) {
+            $query->whereIn('specie_type_id', explode(',', $specieTypeIds));
+        }
+
+        if ($habitatId) {
+            $query->where('habitat_id', $habitatId);
+        }
+
+        $species = $query->get();
+
         return SpecieResource::collection($species);
     }
 
@@ -30,30 +51,16 @@ class SpecieService
     public function store(SpecieRequest $request)
     {
         $data = $request->validated();
-        $data['user_id'] = auth()->user()->id; // Assuming you want to set the user_id to the authenticated user
+        $data['user_id'] = auth()->user()->id;
         $specie = Specie::create($data);
         $image = $request->file('image');
         $fileType = FileType::where('name', 'image')->firstOrFail();
-        $path = $image->store('locations', 'public'); // Note the 'public' disk parameter
+        $path = $image->store('locations', 'public');
         $specie->image()->create([
             'path' => 'storage/' . $path,
             'original_name' => $image->getClientOriginalName(),
             'file_type_id' => $fileType->id,
         ]);
-        return new SpecieResource($specie);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $validatedData = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'scientific_name' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|string',
-            // Add other specie-specific fields here
-        ]);
-
-        $specie = Specie::findOrFail($id);
-        $specie->update($validatedData);
         return new SpecieResource($specie);
     }
 
