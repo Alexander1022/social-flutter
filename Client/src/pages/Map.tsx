@@ -51,10 +51,30 @@ export default function MyMap() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [geolocationBlocked, setGeolocationBlocked] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [kilometers, setKilometers] = useState("");
 
   useEffect(() => {
     const fetchLocations = async () => {
       try {
+        const params: {
+          startDate?: string;
+          endDate?: string;
+          kilometers?: string;
+          lat?: number;
+          lng?: number;
+        } = {
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+        };
+
+        if (kilometers && userPosition) {
+          params.kilometers = kilometers;
+          params.lat = userPosition[0];
+          params.lng = userPosition[1];
+        }
+
         const response = await axios.get(
           `${import.meta.env.VITE_SERVER_ENDPOINT}/api/locations`,
           {
@@ -62,25 +82,22 @@ export default function MyMap() {
               "ngrok-skip-browser-warning": "please-ngrok-we-love-you",
               Authorization: `Bearer ${localStorage.getItem("authToken")}`,
             },
+            params,
           }
         );
 
         const responseData = response.data;
-        console.log("Full API response:", responseData);
-
+        
         if (!responseData.data || !Array.isArray(responseData.data)) {
           throw new Error("Invalid response format: Expected data array");
         }
 
         const formattedData = responseData.data.map((loc: any) => {
-          console.log(loc);
           const specieName = loc.specie?.common_name || "Unknown species";
-
           const lat = parseFloat(loc.lat);
           const lng = parseFloat(loc.lng);
-
           const firstImage = loc.image_urls[0].url;
-          console.log(firstImage);
+
           return {
             position: [lat, lng] as LatLngTuple,
             imageUrl: firstImage,
@@ -91,12 +108,9 @@ export default function MyMap() {
           };
         });
 
-        console.log("Formatted data:", formattedData);
         setLocations(formattedData);
         setError(null);
       } catch (err) {
-        console.error("Full error:", err);
-
         if (axios.isAxiosError(err)) {
           const message = err.response?.data?.message || err.message;
           setError(`API Error: ${message}`);
@@ -109,7 +123,7 @@ export default function MyMap() {
     };
 
     fetchLocations();
-  }, []);
+  }, [startDate, endDate, kilometers, userPosition]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && navigator.geolocation) {
@@ -138,6 +152,33 @@ export default function MyMap() {
     <div className="min-h-full flex flex-col relative">
       <div className="flex-1 pt-8 md:pt-10 pb-20 flex">
         <div className="w-full max-w-6xl mx-auto p-4">
+          <div className="mb-4 flex gap-4 flex-wrap">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="p-2 border rounded flex-1 min-w-[200px]"
+              aria-label="Start date"
+            />
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="p-2 border rounded flex-1 min-w-[200px]"
+              aria-label="End date"
+            />
+            <input
+              type="number"
+              value={kilometers}
+              onChange={(e) => setKilometers(e.target.value)}
+              placeholder="Radius (km)"
+              className="p-2 border rounded flex-1 min-w-[200px]"
+              min="0"
+              disabled={geolocationBlocked || !userPosition}
+              aria-label="Search radius in kilometers"
+            />
+          </div>
+
           {geolocationBlocked ? (
             <div className="h-[600px] border-4 border-white rounded-[2rem] overflow-hidden relative z-0 flex items-center justify-center bg-gray-100">
               <div className="text-center text-xl p-4">
