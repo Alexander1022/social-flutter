@@ -195,8 +195,8 @@ export default function MyMap() {
 
               <MapContainer
                 center={userPosition || [42.6977, 23.3219]}
-                zoom={14}
-                scrollWheelZoom={false}
+                zoom={15}
+                scrollWheelZoom={true}
                 style={{ height: "100%", width: "100%" }}
               >
                 <TileLayer

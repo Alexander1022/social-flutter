@@ -19,7 +19,7 @@ export default function Upload() {
   const [error, setError] = useState<string | null>(null);
 
   const imageData = location.state?.imageData;
-  console.log('img data', imageData);
+  console.log("img data", imageData);
   const imageCoordinates = location.state?.coordinates;
 
   useEffect(() => {
@@ -31,22 +31,22 @@ export default function Upload() {
       setIsLoading(true);
       setError("");
       const base64Data = imageData.split(",")[1];
-      const buffer = Buffer.from(base64Data, 'base64');
-      const file = new File([buffer], 'upload.jpg', {
-        type: 'image/jpeg'
+      const buffer = Buffer.from(base64Data, "base64");
+      const file = new File([buffer], "upload.jpg", {
+        type: "image/jpeg",
       });
-      
+
       const formData = new FormData();
-      formData.append('lat', imageCoordinates[0]);
-      formData.append('lng', imageCoordinates[1]);
-      formData.append('images[0]', file);
-      
+      formData.append("lat", imageCoordinates[0]);
+      formData.append("lng", imageCoordinates[1]);
+      formData.append("images[0]", file);
+
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_ENDPOINT}/api/locations`,
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         }
@@ -55,9 +55,10 @@ export default function Upload() {
       const responseData = response.data;
       console.log("Full API response:", responseData);
 
-
-      const specieCommonName = responseData.location?.specie?.common_name || "Unknown species";
-      const specieScientificName = responseData.location?.specie?.scientific_name || "Unknown species";
+      const specieCommonName =
+        responseData.location?.specie?.common_name || "Unknown species";
+      const specieScientificName =
+        responseData.location?.specie?.scientific_name || "Unknown species";
 
       const firstImage = responseData.location.image_urls[0].url;
       console.log(firstImage);
@@ -71,7 +72,7 @@ export default function Upload() {
       console.log("Formatted data:", formattedData);
       setError(null);
 
-      console.log('status', response.status);
+      console.log("status", response.status);
       if (response.status === 200) {
         navigate("/details", {
           state: {
@@ -81,7 +82,6 @@ export default function Upload() {
           },
         });
       }
-      
     } catch (err: any) {
       setError(err);
       console.error(err);
@@ -122,26 +122,31 @@ export default function Upload() {
               </h2>
 
               <div className="grid gap-2.5 sm:gap-3">
-                {["animal", "plant", "mushroom"].map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`
-                      w-full py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg 
-                      transition-all duration-200 border-2 text-left
-                      text-sm sm:text-base font-medium
-                      ${
-                        selectedCategory === category
-                          ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
-                          : "border-gray-200 bg-white text-gray-700 hover:border-emerald-400"
-                      }
-                      ${isLoading ? "opacity-75 cursor-not-allowed" : ""}
-                    `}
-                    disabled={isLoading}
-                  >
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </button>
-                ))}
+                {["animal", "plant", "mushroom"].map((category) => {
+                  const isDisabled =
+                    isLoading || ["animal", "mushroom"].includes(category);
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`
+          w-full py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg 
+          transition-all duration-200 border-2 text-left
+          text-sm sm:text-base font-medium
+          ${
+            isDisabled
+              ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+              : selectedCategory === category
+              ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
+              : "border-gray-200 bg-white text-gray-700 hover:border-emerald-400"
+          }
+        `}
+                      disabled={isDisabled}
+                    >
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -178,14 +183,13 @@ export default function Upload() {
               </div>
             )}
             {error && (
-            <div className="text-red-600 text-sm text-center p-2 bg-red-50 rounded-lg">
-              {error}
-            </div>
-          )}
+              <div className="text-red-600 text-sm text-center p-2 bg-red-50 rounded-lg">
+                {error}
+              </div>
+            )}
           </div>
         </div>
       </div>
-      
     </div>
   );
 }
