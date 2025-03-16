@@ -1,33 +1,65 @@
+import axios from "axios";
 import { Sword, Shield, Trophy, Clock, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function Challenges() {
   // Mock challenges data
-  const challenges = [
-    {
-      title: "Daily Quest",
-      description: "Identify 5 plant species",
-      progress: 3,
-      total: 5,
-      reward: 500,
-      icon: <Zap className="w-8 h-8 text-yellow-500" />,
-    },
-    {
-      title: "Weekly Challenge",
-      description: "Upload 20 species observations",
-      progress: 12,
-      total: 20,
-      reward: 2500,
-      icon: <Trophy className="w-8 h-8 text-purple-500" />,
-    },
-    {
-      title: "Expert Mission",
-      description: "Discover 3 rare mushrooms",
-      progress: 1,
-      total: 3,
-      reward: 1500,
-      icon: <Shield className="w-8 h-8 text-blue-500" />,
-    },
-  ];
+  const [challenges, setChallenges] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_ENDPOINT}/api/achievements`,
+          {
+            headers: {
+              "ngrok-skip-browser-warning": "please-ngrok-we-love-you",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }
+        );
+
+        const responseData = response.data;
+        console.log(responseData.data);
+        
+        if (!responseData.data || !Array.isArray(responseData.data)) {
+          throw new Error("Invalid response format: Expected data array");
+        }
+
+        const formattedData = responseData.data.map((ch: any) => {
+          console.log('ch', ch);
+          return {
+            title: ch.name,
+            description: ch.description,
+            total: ch.points_to_complete,
+            reward: ch.reward_xp,
+            icon: <Zap className="w-8 h-8 text-yellow-500" />,
+          };
+        });
+
+        console.log(formattedData);
+
+        setChallenges(formattedData);
+        setError(null);
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          const message = err.response?.data?.message || err.message;
+          setError(`API Error: ${message}`);
+        } else {
+          setError(err instanceof Error ? err.message : "Unknown error");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white p-8">
@@ -58,21 +90,6 @@ export default function Challenges() {
               </div>
 
               <div className="space-y-4">
-                <div className="bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${(challenge.progress / challenge.total) * 100}%`,
-                    }}
-                  />
-                </div>
-
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-emerald-600">
-                    {challenge.progress}/{challenge.total}
-                  </span>
-                </div>
-
                 <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                   <span className="text-gray-900 font-medium">
                     Reward: {challenge.reward} XP
