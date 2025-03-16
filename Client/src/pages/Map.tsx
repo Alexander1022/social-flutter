@@ -9,6 +9,7 @@ import CustomPopup from "../components/CustomProp";
 import UserMarker from "../assets/user-pin.png";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useSearchParams } from "react-router";
 
 L.Marker.prototype.options.icon = L.icon({
   iconUrl: markerIcon,
@@ -46,101 +47,119 @@ function CenterMap({ position }: { position: LatLngTuple }) {
 }
 
 export default function MyMap() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [userPosition, setUserPosition] = useState<LatLngTuple | null>(null);
   const [locations, setLocations] = useState<LocationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [geolocationBlocked, setGeolocationBlocked] = useState(false);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [kilometers, setKilometers] = useState("1");
+  const [startDate, setStartDate] = useState(searchParams.get("startDate") || "");
+  const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
+  const [kilometers, setKilometers] = useState(searchParams.get("kilometers") || "1");
+
+  useEffect(() => {
+    const newStart = searchParams.get("startDate") || "";
+    const newEnd = searchParams.get("endDate") || "";
+    const newKm = searchParams.get("kilometers") || "";
+    setStartDate(newStart);
+    setEndDate(newEnd);
+    setKilometers(newKm);
+  }, [searchParams]);
 
   const handleDateChange = (type: 'start' | 'end', value: string) => {
     if (type === 'start') {
-      if (endDate && value > endDate) {
-        setEndDate(value);
-      }
+      if (endDate && value > endDate) setEndDate(value);
       setStartDate(value);
     } else {
-      if (startDate && value < startDate) {
-        setStartDate(value);
-      }
+      if (startDate && value < startDate) setStartDate(value);
       setEndDate(value);
     }
   };
 
-  const handleApplyFilters = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const params: {
-        startDate?: string;
-        endDate?: string;
-        kilometers?: string;
-        lat?: number;
-        lng?: number;
-      } = {
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-      };
-
-      if (kilometers && userPosition) {
-        params.kilometers = kilometers;
-        params.lat = userPosition[0];
-        params.lng = userPosition[1];
-      }
-
-      const response = await axios.get(
-        `${import.meta.env.VITE_SERVER_ENDPOINT}/api/locations`,
-        {
-          headers: {
-            "ngrok-skip-browser-warning": "please-ngrok-we-love-you",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-          params,
-        }
-      );
-
-      const responseData = response.data;
-      
-      if (!responseData.data || !Array.isArray(responseData.data)) {
-        throw new Error("Invalid response format: Expected data array");
-      }
-
-      const formattedData = responseData.data.map((loc: any) => {
-        const specieName = loc.specie?.common_name || "Unknown species";
-        const lat = parseFloat(loc.lat);
-        const lng = parseFloat(loc.lng);
-        const firstImage = loc.image_urls[0].url;
-
-        return {
-          position: [lat, lng] as LatLngTuple,
-          imageUrl: firstImage,
-          date: new Date(loc.created_at),
-          author: loc.user?.name || "Unknown",
-          contentText: loc?.specie?.scientific_name,
-          altText: `Photo of ${specieName}`,
-        };
-      });
-
-      setLocations(formattedData);
-      setError(null);
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const message = err.response?.data?.message || err.message;
-        setError(`API Error: ${message}`);
-      } else {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleApplyFilters = () => {
+    const params = new URLSearchParams();
+    if (startDate) params.set("startDate", startDate);
+    if (endDate) params.set("endDate", endDate);
+    if (kilometers) params.set("kilometers", kilometers);
+    setSearchParams(params);
   };
 
   useEffect(() => {
-    handleApplyFilters();
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const apiParams: {
+          startDate?: string;
+          endDate?: string;
+          kilometers?: string;
+          lat?: number;
+          lng?: number;
+        } = {
+          startDate: searchParams.get("startDate") || undefined,
+          endDate: searchParams.get("endDate") || undefined,
+        };
+
+        const kmParam = searchParams.get("kilometers");
+        if (kmParam) {
+          apiParams.kilometers = kmParam;
+        }
+        else{
+          apiParams.kilometers = "1";
+        }
+        apiParams.lat = userPosition[0];
+        apiParams.lng = userPosition[1];
+
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_ENDPOINT}/api/locations`,
+          {
+            headers: {
+              "ngrok-skip-browser-warning": "please-ngrok-we-love-you",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+            params: apiParams,
+          }
+        );
+
+        const responseData = response.data;
+        
+        if (!responseData.data || !Array.isArray(responseData.data)) {
+          throw new Error("Invalid response format: Expected data array");
+        }
+
+        const formattedData = responseData.data.map((loc: any) => {
+          const specieName = loc.specie?.common_name || "Unknown species";
+          const lat = parseFloat(loc.lat);
+          const lng = parseFloat(loc.lng);
+          const firstImage = loc.image_urls[0].url;
+
+          return {
+            position: [lat, lng] as LatLngTuple,
+            imageUrl: firstImage,
+            date: new Date(loc.created_at),
+            author: loc.user?.name || "Unknown",
+            contentText: loc?.specie?.scientific_name,
+            altText: `Photo of ${specieName}`,
+          };
+        });
+
+        setLocations(formattedData);
+        setError(null);
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          const message = err.response?.data?.message || err.message;
+          setError(`API Error: ${message}`);
+        } else {
+          setError(err instanceof Error ? err.message : "Unknown error");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [searchParams, userPosition]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && navigator.geolocation) {
