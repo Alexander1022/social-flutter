@@ -24,7 +24,9 @@ class SpecieService
         }
 
         if ($specieTypeIds) {
-            $query->whereIn('specie_type_id', explode(',', $specieTypeIds));
+            $query->whereHas('specieTypes', function($q) use ($specieTypeIds) {
+                $q->whereIn('specie_types.id', $specieTypeIds);
+            });
         }
 
         if ($habitatId) {
