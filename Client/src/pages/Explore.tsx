@@ -224,7 +224,7 @@ export default function Explore() {
                     </span>
                   </div>
                   <p className="mt-2 text-sm text-gray-500">
-                    Found in {species.habitat}: ({species.lat}, {species.lng})
+                    Found in {species.habitat}
                   </p>
                 </div>
               </div>
