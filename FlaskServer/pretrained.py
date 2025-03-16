@@ -6,10 +6,16 @@ from torchvision.models import resnet18
 from PIL import Image
 from utils import load_model
 import io
+import os
+from functools import wraps
+import hmac
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+app.config['API_KEY'] = os.environ.get('API_KEY') 
 
-# Load mappings and model once at startup
 class_idx_to_species_id, species_id_to_name = None, None
 model = None
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -43,8 +49,23 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
+def require_api_key(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        provided_key = request.headers.get('X-API-Key')
+
+        if not hmac.compare_digest(provided_key or '', app.config['API_KEY'] or ''):
+            return jsonify({"error": "Unauthorized", "message": "Do you even have our secret key?"}), 401
+            
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok', 'do-i-love-butterflies': 'yes'})
 
 @app.route('/predict', methods=['POST'])
+@require_api_key
 def predict():
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
@@ -84,4 +105,4 @@ def predict():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
