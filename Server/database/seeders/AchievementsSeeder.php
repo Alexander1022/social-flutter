@@ -6,7 +6,7 @@ use App\Models\Achievement;
 use App\Models\SpecieType;
 use Illuminate\Database\Seeder;
 
-class AchievementSeeder extends Seeder
+class AchievementsSeeder extends Seeder
 {
     /**
      * Run the database seeds.

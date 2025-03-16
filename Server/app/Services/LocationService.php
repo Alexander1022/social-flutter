@@ -10,13 +10,20 @@ use App\Models\Achievement;
 use App\Http\Resources\LocationResource;
 use App\Http\Requests\LocationRequest;
 use Illuminate\Http\Request;
+use App\Http\Requests\SpecieRequest;
+use App\Services\SpecieService;
 
 class LocationService
 {
+    protected $specieService;
+
+    public function __construct(SpecieService $specieService)
+    {
+        $this->specieService = $specieService;
+    }
     public function index(Request $request)
     {
-        $query = Location::with('images', 'user', 'specie');
-
+        $query = Location::with(['images', 'user', 'specie.habitat', 'specie.animalKingdom', 'specie.specieTypes', 'specie.image']);
         $lat = $request->query('lat');
         $lng = $request->query('lng');
         $search = $request->query('search');
@@ -122,8 +129,17 @@ class LocationService
         }
         $specie = Specie::where('scientific_name', $bestSpecies)->first();
         if (!$specie) {
-            
-            return response()->json(['message' => 'No species found in database'], 404);
+            $bestImage = $speciesGroups[$bestSpecies]['best_image'];
+            $specie = $this->specieService->storeWithParams([
+                'common_name' => $bestSpecies,
+                'scientific_name' => $bestSpecies,
+                'animal_kingdom_id' => 1,
+                'habitat_id' => 1,
+            ], $bestImage);
+
+            if(!$specie){
+                return response()->json(['message' => 'Failed to find specie'], 404);
+            }
         }
 
         $data['user_id'] = auth()->user()->id;
@@ -165,8 +181,7 @@ class LocationService
                     $user->xp += $achievement->reward_xp;
                     $user->save();
                 }
-            }
-            else {
+            } else {
                 $currentPoints = $userAchievement->pivot->points;
 
                 if ($currentPoints < $achievement->points_to_complete) {
@@ -217,11 +232,11 @@ class LocationService
                     'model' => config('services.open_ai.model'),
                     'store' => true,
                     'messages' => [
-                        [
-                            'role' => 'user',
-                            'content' => "Write a random fun fact about $scientificName"
+                            [
+                                'role' => 'user',
+                                'content' => "Write a random fun fact about $scientificName"
+                            ]
                         ]
-                    ]
                 ]
             ]);
             $result = json_decode($response->getBody()->getContents(), true);

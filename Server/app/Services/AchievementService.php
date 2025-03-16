@@ -10,7 +10,7 @@ class AchievementService
 {
     public function index()
     {
-        $achievements = Achievement::with('users')->get();
+        $achievements = Achievement::with('users', 'specieTypes')->get();
         return AchievementResource::collection($achievements);
     }
 

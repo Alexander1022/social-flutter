@@ -12,12 +12,11 @@ class SpecieService
 {
     public function index(Request $request)
     {
-        $query = Specie::with('images', 'specieType', 'animalKingdom', 'habitat', 'user');
+        $query = Specie::with('image', 'specieTypes', 'animalKingdom', 'habitat', 'user');
 
         $search = $request->query('search');
         $specieTypeIds = $request->query('specie_type_ids');
         $habitatId = $request->query('habitat_id');
-        
 
         if ($search) {
             $query->where('common_name', 'like', '%' . $search . '%')
@@ -41,7 +40,7 @@ class SpecieService
     {
         try {
             $specie = Specie::findOrFail($id);
-            $specie->load('image', 'specieType', 'animalKingdom', 'habitat', 'user');
+            $specie->load('image', 'specieTypes', 'animalKingdom', 'habitat', 'user');
             return new SpecieResource($specie);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => 'No such species found'], 404);
@@ -53,6 +52,8 @@ class SpecieService
         $data = $request->validated();
         $data['user_id'] = auth()->user()->id;
         $specie = Specie::create($data);
+        $specieTypeIds = $data['specie_type_ids'];
+        $specie->specieTypes()->attach($specieTypeIds);
         $image = $request->file('image');
         $fileType = FileType::where('name', 'image')->firstOrFail();
         $path = $image->store('locations', 'public');
@@ -70,4 +71,27 @@ class SpecieService
         $specie->delete();
         return response()->json(['message' => 'Specie deleted successfully.'], 200);
     }
+
+    public function storeWithParams(array $data, $image = null)
+    {
+        $data['user_id'] = auth()->user()->id;
+        $specie = Specie::create($data);
+
+        if (isset($data['specie_type_ids'])) {
+            $specie->specieTypes()->attach($data['specie_type_ids']);
+        }
+
+        if ($image) {
+            $fileType = FileType::where('name', 'image')->firstOrFail();
+            $path = $image->store('locations', 'public');
+            $specie->image()->create([
+                'path' => 'storage/' . $path,
+                'original_name' => $image->getClientOriginalName(),
+                'file_type_id' => $fileType->id,
+            ]);
+        }
+
+        return new SpecieResource($specie);
+    }
+
 }

@@ -14,7 +14,14 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'xp' => $this->xp,
             'locations' => LocationResource::collection($this->whenLoaded('locations')),
-            'achievements' => AchievementResource::collection($this->whenLoaded('achievements')),
+            'achievements' => $this->whenLoaded('achievements', function() {
+                return $this->achievements->map(function($achievement) {
+                    return [
+                        'achievement' => new AchievementResource($achievement),
+                        'points' => $achievement->pivot->points,
+                    ];
+                });
+            }),
             'roles' => $this->getRoleNames(),
         ];
     }

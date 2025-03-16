@@ -17,6 +17,8 @@ class SpecieRequest extends FormRequest
             'common_name' => 'required|string|max:255',
             'scientific_name' => 'required|string|max:255',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'specie_type_ids' => 'required|array',
+            'specie_type_ids.*' => 'exists:specie_types,id',
         ];
     }
 }

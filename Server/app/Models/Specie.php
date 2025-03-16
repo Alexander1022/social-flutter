@@ -27,11 +27,6 @@ class Specie extends Model
         return $this->belongsTo(AnimalKingdom::class);
     }
 
-    public function specieType()
-    {
-        return $this->belongsTo(SpecieType::class);
-    }
-
     public function habitat()
     {
         return $this->belongsTo(Habitat::class);
