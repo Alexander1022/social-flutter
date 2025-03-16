@@ -1,4 +1,3 @@
-// ResultsPage.tsx
 import { useLocation, useNavigate } from 'react-router';
 import { useEffect } from 'react';
 

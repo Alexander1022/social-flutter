@@ -88,7 +88,7 @@ export default function Upload() {
 
       if (axios.isAxiosError(err)) {
         const message = err.response?.data?.message || err.message;
-        setError(`API Error: ${message}`);
+        setError(`${message}`);
       } else {
         setError(err instanceof Error ? err.message : "Unknown error");
       }
