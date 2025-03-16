@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description');
             $table->integer('points_to_complete');
+            $table->integer('reward_xp');
             $table->timestamps();
         });
     }

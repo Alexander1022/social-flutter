@@ -64,6 +64,7 @@ class UserController
 
     public function getUser(Request $request)
     {
-        return new UserResource($request->user());
+        $user = $request->user()->load('locations', 'achievements');
+        return new UserResource($user);
     }
 }

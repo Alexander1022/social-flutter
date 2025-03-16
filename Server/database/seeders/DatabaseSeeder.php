@@ -13,6 +13,9 @@ class DatabaseSeeder extends Seeder
             RolesSeeder::class,
             AnimalKingdomsSeeder::class,
             FileTypesSeeder::class,
+            SpecieTypeSeeder::class,
+            HabitatsSeeder::class,
+            AchievementsSeeder::class,
         ]);
     }
 }
