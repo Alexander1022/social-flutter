@@ -149,7 +149,7 @@ export default function MyMap() {
       } catch (err) {
         if (axios.isAxiosError(err)) {
           const message = err.response?.data?.message || err.message;
-          setError(`API Error: ${message}`);
+          setError(`${message}`);
         } else {
           setError(err instanceof Error ? err.message : "Unknown error");
         }

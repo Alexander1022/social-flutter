@@ -91,7 +91,10 @@ def predict():
         species_id = class_idx_to_species_id.get(str(predicted_class_idx), "Unknown")
         species_name = species_id_to_name.get(str(species_id), "Unknown")
 
+        print(predicted_class_idx, species_id, species_name, confidence)
+        
         return jsonify({
+            'specie_id': species_id,
             'species_name': species_name,
             'confidence': float(confidence),
             'success': True
