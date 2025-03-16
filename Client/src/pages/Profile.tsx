@@ -6,6 +6,7 @@ import {
   Star,
   ChevronDown,
   X,
+  Circle,
 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import UserAvatar from "../assets/default-avatar.svg";
@@ -24,10 +25,29 @@ interface Photo {
   altText: string;
 }
 
+interface Achievement {
+  achievement: {
+    id: number;
+    name: string;
+    description: string;
+    points_to_complete: number;
+    reward_xp: number;
+    created_at: string;
+    updated_at: string;
+  };
+  points: number;
+}
+
 export default function ProfilePage() {
   const [visiblePhotos, setVisiblePhotos] = useState(6);
   const [visibleQuests, setVisibleQuests] = useState(2);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [loadingAchievements, setLoadingAchievements] = useState(true);
+  const [errorAchievements, setErrorAchievements] = useState<string | null>(
+    null
+  );
+
   const { user } = useAuth();
   const butterflyImages = [Butter1, Butter2, Butter3, Butter4, Butter5];
 
@@ -45,8 +65,8 @@ export default function ProfilePage() {
   const butterflyIndex = Math.max(currentLevel - 1, 0) % butterflyImages.length;
 
   const [userPhotos, setUserPhotos] = useState<Photo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadingPhotos, setLoadingPhotos] = useState(true);
+  const [errorPhotos, setErrorPhotos] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -76,36 +96,58 @@ export default function ProfilePage() {
         });
 
         setUserPhotos(formattedData);
-        setError(null);
+        setErrorPhotos(null);
       } catch (err) {
         if (axios.isAxiosError(err)) {
           const message = err.response?.data?.message || err.message;
-          setError(`API Error: ${message}`);
+          setErrorPhotos(message);
         } else {
-          setError(err instanceof Error ? err.message : "Unknown error");
+          setErrorPhotos(err instanceof Error ? err.message : "Unknown error");
         }
       } finally {
-        setLoading(false);
+        setLoadingPhotos(false);
+      }
+    };
+
+    const fetchAchievements = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_ENDPOINT}/api/user`,
+          {
+            headers: {
+              "ngrok-skip-browser-warning": "please-ngrok-we-love-you",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          }
+        );
+
+        const achievementsData = response.data.data.achievements;
+        setAchievements(achievementsData);
+        setErrorAchievements(null);
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          const message = err.response?.data?.message || err.message;
+          setErrorAchievements(message);
+        } else {
+          setErrorAchievements(
+            err instanceof Error ? err.message : "Unknown error"
+          );
+        }
+      } finally {
+        setLoadingAchievements(false);
       }
     };
 
     fetchLocations();
+    fetchAchievements();
   }, []);
-
-  const completedQuests = [
-    {
-      title: "Daily Quest",
-      speciesFound: ["African Elephant", "Baobab Tree"],
-      rewardEarned: 500,
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-        {loading && (
+        {(loadingPhotos || loadingAchievements) && (
           <div className="absolute inset-0 bg-gray-500/50 flex items-center justify-center z-50">
-            <div className="text-white text-xl">Loading map data...</div>
+            <div className="text-white text-xl">Loading data...</div>
           </div>
         )}
 
@@ -294,51 +336,66 @@ export default function ProfilePage() {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Trophy className="w-6 h-6 text-purple-600" />
-              Completed Quests
+              Quests in Progress
             </h2>
             <div className="space-y-4">
-              {completedQuests.slice(0, visibleQuests).map((quest, index) => (
-                <div
-                  key={index}
-                  className="bg-emerald-50 rounded-lg p-4 border border-emerald-100"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-emerald-600" />
-                      <h3 className="font-medium text-gray-900">
-                        {quest.title}
-                      </h3>
-                    </div>
-                  </div>
-                  <div className="ml-7">
-                    <div className="mb-2">
-                      <p className="text-sm font-medium text-gray-600">
-                        Species Discovered:
-                      </p>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {quest.speciesFound.map((species, i) => (
-                          <span
-                            key={i}
-                            className="px-2 py-1 bg-white text-sm rounded-full border border-emerald-200"
-                          >
-                            {species}
-                          </span>
-                        ))}
+              {achievements.length > 0 ? (
+                achievements.slice(0, visibleQuests).map((ach) => (
+                  <div
+                    key={ach.achievement.id}
+                    className="bg-emerald-50 rounded-lg p-4 border border-emerald-100"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <Circle className="w-5 h-5 text-emerald-600" />
+                        <h3 className="font-medium text-gray-900">
+                          {ach.achievement.name}
+                        </h3>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <p className="text-sm text-gray-600">
-                        Earned:
-                        <span className="ml-1 font-medium text-emerald-700">
-                          {quest.rewardEarned} XP
+                    <div className="ml-7">
+                      <div className="mb-2">
+                        <p className="text-sm font-medium text-gray-600">
+                          Description:
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          {ach.achievement.description}
+                        </p>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className="text-sm text-gray-600">
+                          Reward:
+                          <span className="ml-1 font-medium text-emerald-700">
+                            {ach.achievement.reward_xp} XP
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-600 mb-1 mt-3">
+                        <span>
+                          Progress: {ach.points}/
+                          {ach.achievement.points_to_complete}
                         </span>
-                      </p>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div
+                          className="h-2.5 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${ach.achievement.points_to_complete}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-gray-600">
+                  {loadingAchievements
+                    ? "Loading achievements..."
+                    : "No quests completed yet."}
+                </p>
+              )}
             </div>
-            {visibleQuests < completedQuests.length && (
+            {visibleQuests < achievements.length && (
               <div className="mt-4 flex justify-center">
                 <button
                   onClick={() => setVisibleQuests((prev) => prev + 2)}
@@ -349,9 +406,14 @@ export default function ProfilePage() {
                 </button>
               </div>
             )}
-            {error && (
+            {errorPhotos && (
               <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
-                Error loading locations: {error}
+                Error loading locations: {errorPhotos}
+              </div>
+            )}
+            {errorAchievements && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+                Error loading achievements: {errorAchievements}
               </div>
             )}
           </div>
