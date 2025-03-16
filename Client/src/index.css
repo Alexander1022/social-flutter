@@ -1,10 +1,1 @@
 @import "tailwindcss";
-
-/* I love maps so much. */
-.leaflet-top {
-    z-index: 49 !important;
-  }
-  
-  .leaflet-bottom {
-    z-index: 49 !important;
-  }
