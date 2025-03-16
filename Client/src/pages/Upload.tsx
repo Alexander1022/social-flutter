@@ -76,14 +76,6 @@ export default function Upload() {
       console.error(error);
     }
 
-    // await new Promise(resolve => setTimeout(resolve, 1500));
-    // navigate('/details', {
-    //   state: {
-    //     imageData,
-    //     category: selectedCategory,
-    //     speciesInfo: mockSpeciesInfo[selectedCategory as keyof typeof mockSpeciesInfo]
-    //   }
-    // });
     setIsLoading(false);
   };
 
@@ -170,6 +162,7 @@ export default function Upload() {
           </div>
         </div>
       </div>
+      
     </div>
   );
 }
