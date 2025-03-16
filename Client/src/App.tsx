@@ -72,7 +72,7 @@ function App() {
 
         <Route 
           path="/explore" 
-          element={<Explore />} 
+          element={isAuthenticated ? <Explore /> :  <Navigate to='/' />}
         />
 
       </Routes>

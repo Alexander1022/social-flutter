@@ -391,7 +391,7 @@ export default function ProfilePage() {
                 <p className="text-sm text-gray-600">
                   {loadingAchievements
                     ? "Loading achievements..."
-                    : "No quests completed yet."}
+                    : "No quests in progress yet."}
                 </p>
               )}
             </div>
