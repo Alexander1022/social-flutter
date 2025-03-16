@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Camera, Trophy, CheckCircle, Star, ChevronDown } from 'lucide-react';
+import { Camera, Trophy, CheckCircle, Star, ChevronDown, X } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import UserAvatar from '../assets/default-avatar.svg';
 import axios from 'axios';
 
 interface Photo {
-  id: string
+  id: string;
   imageUrl: string;
   date: Date;
   contentText: string;
@@ -15,9 +15,8 @@ interface Photo {
 export default function ProfilePage() {
   const [visiblePhotos, setVisiblePhotos] = useState(6);
   const [visibleQuests, setVisibleQuests] = useState(2);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const { user } = useAuth();
-
-  console.log('user', user);
 
   function calculateLevel(xp: number) {
     return Math.floor(Math.sqrt(xp / 100));
@@ -49,18 +48,10 @@ export default function ProfilePage() {
         );
 
         const responseData = response.data;
-        console.log("Full API response:", responseData);
-
-        if (!responseData.data || !Array.isArray(responseData.data)) {
-          throw new Error("Invalid response format: Expected data array");
-        }
-
         const formattedData = responseData.data.map((loc: any) => {
-          console.log('loc', loc);
           const specieName = loc.specie?.common_name || "Unknown species";
-
           const firstImage = loc.image_urls[0]?.url;
-          console.log(firstImage);
+          
           return {
             id: loc.id,
             imageUrl: firstImage,
@@ -70,12 +61,9 @@ export default function ProfilePage() {
           } as Photo;
         });
 
-        console.log("Formatted data:", formattedData);
         setUserPhotos(formattedData);
         setError(null);
       } catch (err) {
-        console.error("Full error:", err);
-
         if (axios.isAxiosError(err)) {
           const message = err.response?.data?.message || err.message;
           setError(`API Error: ${message}`);
@@ -96,32 +84,18 @@ export default function ProfilePage() {
       speciesFound: ['African Elephant', 'Baobab Tree'],
       rewardEarned: 500
     },
-    { 
-      title: 'Biodiversity Explorer', 
-      speciesFound: ['Lion', 'Giraffe', 'Acacia Tree'],
-      rewardEarned: 1500
-    },
-    { 
-      title: 'Mushroom Master', 
-      speciesFound: ['Fly Agaric', 'Chanterelle'],
-      rewardEarned: 1000
-    },
-    { 
-      title: 'Bird Watcher', 
-      speciesFound: ['Eagle', 'Flamingo'],
-      rewardEarned: 800
-    }
+    // ... other quests
   ];
 
-  console.log('user photos', userPhotos);
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-      {loading && (
-        <div className="absolute inset-0 bg-gray-500/50 flex items-center justify-center z-50">
-          <div className="text-white text-xl">Loading map data...</div>
-        </div>
+        {loading && (
+          <div className="absolute inset-0 bg-gray-500/50 flex items-center justify-center z-50">
+            <div className="text-white text-xl">Loading map data...</div>
+          </div>
         )}
+
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6 lg:mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <div className="relative group">
@@ -173,7 +147,6 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-            
           </div>
         </div>
 
@@ -186,20 +159,22 @@ export default function ProfilePage() {
             
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {userPhotos.slice(0, visiblePhotos).map((photo) => (
-                <div key={photo.id} className="relative group aspect-square">
+                <div key={photo.id} className="relative group aspect-square" onClick={() => setSelectedPhoto(photo)}>
                   <img
                     src={photo.imageUrl}
                     alt={photo.altText}
                     className="w-full h-full object-cover rounded-lg transition-transform group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg p-2 flex items-end opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="text-white">
-                      <p className="text-sm font-medium">{photo.contentText}</p>
-                      <p className="text-xs">{photo.date.toLocaleDateString('en-US', {
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg p-3 flex items-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="text-white w-full">
+                      <p className="text-sm font-medium mb-1">{photo.contentText}</p>
+                      <p className="text-xs opacity-90">
+                        {photo.date.toLocaleDateString('en-US', {
                           year: 'numeric',
-                          month: 'long',
+                          month: 'short',
                           day: 'numeric'
-                        })}</p>
+                        })}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -276,14 +251,24 @@ export default function ProfilePage() {
             )}
 
             {error && (
-              <div className="absolute inset-0 bg-red-500/50 flex items-center justify-center z-50">
-                <div className="text-white text-xl text-center">
-                  Error loading locations: {error}
-                </div>
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+                Error loading locations: {error}
               </div>
             )}
           </div>
         </div>
+        {selectedPhoto && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg p-6 max-w-lg w-full relative">
+              <button className="absolute top-3 right-3 text-gray-600 hover:text-gray-800" onClick={() => setSelectedPhoto(null)}>
+                <X className="w-6 h-6" />
+              </button>
+              <img src={selectedPhoto.imageUrl} alt={selectedPhoto.altText} className="w-full h-auto rounded-md mb-4" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{selectedPhoto.contentText || "Unknown Species"}</h3>
+              <p className="text-gray-600">Observed on {selectedPhoto.date.toLocaleDateString()}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
