@@ -83,4 +83,41 @@ class LocationService
         $locations = $user->locations()->with('images', 'specie')->get();
         return LocationResource::collection($locations);
     }
+
+    private function getFunFact($scientificName)
+    {
+        try {
+            $client = new \GuzzleHttp\Client();
+            $response = $client->post(config('services.open_ai.url'), [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . config('services.open_ai.api_key')
+                ],
+                'json' => [
+                    'model' => config('services.open_ai.model'),
+                    'store' => true,
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => "Write a random fun fact about $scientificName"
+                        ]
+                    ]
+                ]
+            ]);
+            $result = json_decode($response->getBody()->getContents(), true);
+            if (isset($result['choices'][0]['message']['content'])) {
+                return $result['choices'][0]['message']['content'];
+            }
+
+            return "No fun facts available for this specie.";
+        } catch (\Exception $e) {
+            \Log::error('Failed to get fun fact: ' . $e->getMessage());
+            return "No fun facts available for this specie.";
+        }
+    }
+
+    private function mockFunFact($scientificName)
+    {
+        return "Did you know that $scientificName can live up to 100 years?";
+    }
 }
