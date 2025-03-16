@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sprout, User } from "lucide-react";
 import { Link } from "react-router";
 import { useAuth } from "../auth/AuthContext";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,6 +21,22 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isDropdownOpen]);
 
   return (
     <header
@@ -37,12 +55,36 @@ export default function Navbar() {
 
           <div className="md:flex items-center space-x-4">
             {isAuthenticated ? (
-              <Link
-                to="/profile"
-                className="p-1 rounded-full hover:bg-emerald-50 transition-colors"
-              >
-                <User className="h-6 w-6 text-emerald-600" />
-              </Link>
+              <div className="relative" ref={containerRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="p-1 rounded-full hover:bg-emerald-50 transition-colors"
+                >
+                  <User className="h-6 w-6 text-emerald-600" />
+                </button>
+
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 focus:outline-none z-[1000]">
+                    {" "}
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50"
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 <Link

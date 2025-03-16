@@ -131,10 +131,10 @@ export default function MyMap() {
   }, []);
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-full flex flex-col relative">
       <div className="flex-1 pt-8 md:pt-10 pb-20 flex">
         <div className="w-full max-w-6xl mx-auto p-4">
-          <div className="h-[600px] border-4 border-white rounded-[2rem] overflow-hidden relative">
+          <div className="h-[600px] border-4 border-white rounded-[2rem] overflow-hidden relative z-0">
             {loading && (
               <div className="absolute inset-0 bg-gray-500/50 flex items-center justify-center z-50">
                 <div className="text-white text-xl">Loading map data...</div>
