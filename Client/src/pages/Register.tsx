@@ -22,6 +22,8 @@ export default function Register() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    const endpoint = import.meta.env.VITE_SERVER_ENDPOINT + "/api/register";
+
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
@@ -30,20 +32,20 @@ export default function Register() {
     try {
       setIsSubmitting(true);
       setError("");
-      console.log(formData);
-      const response = await axios.post(
-        `${import.meta.env.VITE_SERVER_ENDPOINT}/api/register`,
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }
-      );
+      const response = await axios.post(endpoint, {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
       if (response.status === 201) {
         navigate("/login");
       }
     } catch (error: any) {
-      setError(error.response.data.message);
+      if (error.response) {
+        setError(error.response.data.message);
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }

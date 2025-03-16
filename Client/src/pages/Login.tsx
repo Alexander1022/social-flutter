@@ -21,24 +21,27 @@ export default function Login() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    const endpoint = import.meta.env.VITE_SERVER_ENDPOINT + "/api/login";
+
     e.preventDefault();
     try {
       setIsSubmitting(true);
       setError("");
-      const response = await axios.post(
-        `${import.meta.env.VITE_SERVER_ENDPOINT}/api/login`,
-        {
-          email: formData.email,
-          password: formData.password,
-        }
-      );
+      const response = await axios.post(endpoint, {
+        email: formData.email,
+        password: formData.password,
+      });
       if (response.status === 200) {
         localStorage.setItem("authToken", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
         await login(response.data.token);
       }
     } catch (error: any) {
-      setError(error.response);
+      if (error.response) {
+        setError(error.response.data.message);
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
