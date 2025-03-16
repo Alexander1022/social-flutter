@@ -507,5 +507,65 @@ class SpecieTypeSeeder extends Seeder
                 ]
             );
         }
+        
+        if (DB::table('specie_types')->where('name', 'Waterfowl')->doesntExist()) {
+            DB::table('specie_types')->insert(
+                [
+                    'name' => 'Waterfowl',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]
+            );
+        }
+        if (DB::table('specie_types')->where('name', 'Marine Mammal')->doesntExist()) {
+            DB::table('specie_types')->insert(
+                [
+                    'name' => 'Marine Mammal',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]
+            );
+        }
+        if (DB::table('specie_types')->where('name', 'Fish')->doesntExist()) {
+            DB::table('specie_types')->insert(
+                [
+                    'name' => 'Fish',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]
+            );
+        }if (DB::table('specie_types')->where('name', 'Insect')->doesntExist()) {
+            DB::table('specie_types')->insert(
+                [
+                    'name' => 'Insect',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]
+            );
+        }if (DB::table('specie_types')->where('name', 'Reptile')->doesntExist()) {
+            DB::table('specie_types')->insert(
+                [
+                    'name' => 'Reptile',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]
+            );
+        }if (DB::table('specie_types')->where('name', 'Amphibian')->doesntExist()) {
+            DB::table('specie_types')->insert(
+                [
+                    'name' => 'Amphibian',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]
+            );
+        }if (DB::table('specie_types')->where('name', 'Bird')->doesntExist()) {
+            DB::table('specie_types')->insert(
+                [
+                    'name' => 'Bird',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]
+            );
+        }
     }
 }
