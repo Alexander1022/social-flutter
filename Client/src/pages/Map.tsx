@@ -50,6 +50,7 @@ export default function MyMap() {
   const [locations, setLocations] = useState<LocationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [geolocationBlocked, setGeolocationBlocked] = useState(false);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -119,6 +120,9 @@ export default function MyMap() {
         },
         (error) => {
           console.error("Error getting geolocation:", error);
+          if (error.code === 1) {
+            setGeolocationBlocked(true);
+          }
         },
         {
           enableHighAccuracy: true,
@@ -134,55 +138,63 @@ export default function MyMap() {
     <div className="min-h-full flex flex-col relative">
       <div className="flex-1 pt-8 md:pt-10 pb-20 flex">
         <div className="w-full max-w-6xl mx-auto p-4">
-          <div className="h-[600px] border-4 border-white rounded-[2rem] overflow-hidden relative z-0">
-            {loading && (
-              <div className="absolute inset-0 bg-gray-500/50 flex items-center justify-center z-50">
-                <div className="text-white text-xl">Loading map data...</div>
+          {geolocationBlocked ? (
+            <div className="h-[600px] border-4 border-white rounded-[2rem] overflow-hidden relative z-0 flex items-center justify-center bg-gray-100">
+              <div className="text-center text-xl p-4">
+                Please enable geolocation permissions to view the map.
               </div>
-            )}
-
-            <MapContainer
-              center={userPosition || [42.6977, 23.3219]}
-              zoom={14}
-              scrollWheelZoom={false}
-              style={{ height: "100%", width: "100%" }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-
-              {!error &&
-                locations.map((location, index) => (
-                  <Marker key={index} position={location.position}>
-                    <CustomPopup
-                      imageUrl={location.imageUrl}
-                      date={location.date}
-                      author={location.author}
-                      altText={`Photo by ${location.author}`}
-                      contentText={location.contentText}
-                    />
-                  </Marker>
-                ))}
-
-              {userPosition && (
-                <>
-                  <Marker position={userPosition} icon={userIcon}>
-                    <Popup>Your current location</Popup>
-                  </Marker>
-                  <CenterMap position={userPosition} />
-                </>
-              )}
-            </MapContainer>
-
-            {error && (
-              <div className="absolute inset-0 bg-red-500/50 flex items-center justify-center z-50">
-                <div className="text-white text-xl text-center">
-                  Error loading locations: {error}
+            </div>
+          ) : (
+            <div className="h-[600px] border-4 border-white rounded-[2rem] overflow-hidden relative z-0">
+              {loading && (
+                <div className="absolute inset-0 bg-gray-500/50 flex items-center justify-center z-50">
+                  <div className="text-white text-xl">Loading map data...</div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+
+              <MapContainer
+                center={userPosition || [42.6977, 23.3219]}
+                zoom={14}
+                scrollWheelZoom={false}
+                style={{ height: "100%", width: "100%" }}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+
+                {!error &&
+                  locations.map((location, index) => (
+                    <Marker key={index} position={location.position}>
+                      <CustomPopup
+                        imageUrl={location.imageUrl}
+                        date={location.date}
+                        author={location.author}
+                        altText={`Photo by ${location.author}`}
+                        contentText={location.contentText}
+                      />
+                    </Marker>
+                  ))}
+
+                {userPosition && (
+                  <>
+                    <Marker position={userPosition} icon={userIcon}>
+                      <Popup>Your current location</Popup>
+                    </Marker>
+                    <CenterMap position={userPosition} />
+                  </>
+                )}
+              </MapContainer>
+
+              {error && (
+                <div className="absolute inset-0 bg-red-500/50 flex items-center justify-center z-50">
+                  <div className="text-white text-xl text-center">
+                    Error loading locations: {error}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <Footer userPosition={userPosition} />
