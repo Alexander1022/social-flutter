@@ -7,6 +7,7 @@ export default function Details() {
   const navigate = useNavigate();
   const { imageData, category, speciesInfo } = location.state || {};
 
+  console.log('info', speciesInfo);
   useEffect(() => {
     if (!imageData || !speciesInfo) {
       navigate('/');
@@ -33,17 +34,22 @@ export default function Details() {
             <div className="space-y-4">
               <div className="bg-emerald-50 p-4 rounded-lg">
                 <p className="font-medium text-emerald-600">Species Identification:</p>
-                <p className="text-lg">{speciesInfo?.name}</p>
+                <p className="text-lg">{speciesInfo?.scientificName}</p>
+              </div>
+
+              <div className="bg-teal-50 p-4 rounded-lg">
+                <p className="font-medium text-emerald-600">Common name:</p>
+                <p className="text-lg">{speciesInfo?.commonName}</p>
               </div>
               
-              <div className="bg-teal-50 p-4 rounded-lg">
+              <div className="bg-emerald-50 p-4 rounded-lg">
                 <p className="font-medium text-teal-600">User Consensus:</p>
                 <p className="text-lg">{speciesInfo?.percentage} of users have seen this</p>
               </div>
               
-              <div className="bg-emerald-50 p-4 rounded-lg">
+              <div className="bg-teal-50 p-4 rounded-lg">
                 <p className="font-medium text-emerald-600">Interesting Fact:</p>
-                <p className="text-gray-700">{speciesInfo?.fact}</p>
+                <p className="text-gray-700">{speciesInfo?.funFact}</p>
               </div>
             </div>
           </div>

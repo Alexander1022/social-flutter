@@ -4,33 +4,23 @@ import { Loader2 } from "lucide-react";
 import axios from "axios";
 import { Buffer } from "buffer";
 
+interface Info {
+  scientificName: string;
+  commonName: string;
+  funFact: string;
+  imageUrl: string;
+}
+
 export default function Upload() {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const imageData = location.state?.imageData;
+  console.log('img data', imageData);
   const imageCoordinates = location.state?.coordinates;
-
-  const mockSpeciesInfo = {
-    animal: {
-      name: "African Elephant",
-      percentage: "78%",
-      fact: "African elephants are the largest land animals on Earth.",
-    },
-    plant: {
-      name: "Baobab Tree",
-      percentage: "63%",
-      fact: "Baobab trees can live for over 3,000 years.",
-    },
-    mushroom: {
-      name: "Fly Agaric",
-      percentage: "42%",
-      fact: "This iconic mushroom is known for its hallucinogenic properties.",
-    },
-  };
 
   useEffect(() => {
     if (!imageData) navigate("/");
@@ -61,22 +51,50 @@ export default function Upload() {
           },
         }
       );
-      if (response.status === 201) {
+
+      const responseData = response.data;
+      console.log("Full API response:", responseData);
+
+
+      const specieCommonName = responseData.location?.specie?.common_name || "Unknown species";
+      const specieScientificName = responseData.location?.specie?.scientific_name || "Unknown species";
+
+      const firstImage = responseData.location.image_urls[0].url;
+      console.log(firstImage);
+      const formattedData: Info = {
+        scientificName: specieScientificName,
+        commonName: specieCommonName,
+        funFact: responseData.fun_fact,
+        imageUrl: firstImage,
+      };
+
+      console.log("Formatted data:", formattedData);
+      setError(null);
+
+      console.log('status', response.status);
+      if (response.status === 200) {
         navigate("/details", {
           state: {
             imageData,
             category: selectedCategory,
-            speciesInfo:
-              mockSpeciesInfo[selectedCategory as keyof typeof mockSpeciesInfo],
+            speciesInfo: formattedData,
           },
         });
       }
-    } catch (error: any) {
-      setError(error.response.data.message);
-      console.error(error);
-    }
+      
+    } catch (err: any) {
+      setError(err);
+      console.error(err);
 
-    setIsLoading(false);
+      if (axios.isAxiosError(err)) {
+        const message = err.response?.data?.message || err.message;
+        setError(`API Error: ${message}`);
+      } else {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -159,6 +177,11 @@ export default function Upload() {
                 </button>
               </div>
             )}
+            {error && (
+            <div className="text-red-600 text-sm text-center p-2 bg-red-50 rounded-lg">
+              {error}
+            </div>
+          )}
           </div>
         </div>
       </div>
