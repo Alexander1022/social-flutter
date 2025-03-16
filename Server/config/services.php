@@ -39,4 +39,8 @@ return [
         'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
         'url' => env('OPENAI_API_URL', 'https://api.openai.com/v1/chat/completions'),
     ],
+    'flask_ai' => [
+        'url' => env('FLASK_API_URL', 'http://10.108.4.159:5000/predict'),
+        'api_key' => env('FLASK_API_KEY'),
+    ]
 ];
