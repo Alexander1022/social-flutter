@@ -53,77 +53,94 @@ export default function MyMap() {
   const [geolocationBlocked, setGeolocationBlocked] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [kilometers, setKilometers] = useState("");
+  const [kilometers, setKilometers] = useState("1");
+
+  const handleDateChange = (type: 'start' | 'end', value: string) => {
+    if (type === 'start') {
+      if (endDate && value > endDate) {
+        setEndDate(value);
+      }
+      setStartDate(value);
+    } else {
+      if (startDate && value < startDate) {
+        setStartDate(value);
+      }
+      setEndDate(value);
+    }
+  };
+
+  const handleApplyFilters = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const params: {
+        startDate?: string;
+        endDate?: string;
+        kilometers?: string;
+        lat?: number;
+        lng?: number;
+      } = {
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      };
+
+      if (kilometers && userPosition) {
+        params.kilometers = kilometers;
+        params.lat = userPosition[0];
+        params.lng = userPosition[1];
+      }
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_ENDPOINT}/api/locations`,
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "please-ngrok-we-love-you",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          params,
+        }
+      );
+
+      const responseData = response.data;
+      
+      if (!responseData.data || !Array.isArray(responseData.data)) {
+        throw new Error("Invalid response format: Expected data array");
+      }
+
+      const formattedData = responseData.data.map((loc: any) => {
+        const specieName = loc.specie?.common_name || "Unknown species";
+        const lat = parseFloat(loc.lat);
+        const lng = parseFloat(loc.lng);
+        const firstImage = loc.image_urls[0].url;
+
+        return {
+          position: [lat, lng] as LatLngTuple,
+          imageUrl: firstImage,
+          date: new Date(loc.created_at),
+          author: loc.user?.name || "Unknown",
+          contentText: loc?.specie?.scientific_name,
+          altText: `Photo of ${specieName}`,
+        };
+      });
+
+      setLocations(formattedData);
+      setError(null);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const message = err.response?.data?.message || err.message;
+        setError(`API Error: ${message}`);
+      } else {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchLocations = async () => {
-      try {
-        const params: {
-          startDate?: string;
-          endDate?: string;
-          kilometers?: string;
-          lat?: number;
-          lng?: number;
-        } = {
-          startDate: startDate || undefined,
-          endDate: endDate || undefined,
-        };
-
-        if (kilometers && userPosition) {
-          params.kilometers = kilometers;
-          params.lat = userPosition[0];
-          params.lng = userPosition[1];
-        }
-
-        const response = await axios.get(
-          `${import.meta.env.VITE_SERVER_ENDPOINT}/api/locations`,
-          {
-            headers: {
-              "ngrok-skip-browser-warning": "please-ngrok-we-love-you",
-              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-            params,
-          }
-        );
-
-        const responseData = response.data;
-        
-        if (!responseData.data || !Array.isArray(responseData.data)) {
-          throw new Error("Invalid response format: Expected data array");
-        }
-
-        const formattedData = responseData.data.map((loc: any) => {
-          const specieName = loc.specie?.common_name || "Unknown species";
-          const lat = parseFloat(loc.lat);
-          const lng = parseFloat(loc.lng);
-          const firstImage = loc.image_urls[0].url;
-
-          return {
-            position: [lat, lng] as LatLngTuple,
-            imageUrl: firstImage,
-            date: new Date(loc.created_at),
-            author: loc.user?.name || "Unknown",
-            contentText: loc?.specie?.scientific_name,
-            altText: `Photo of ${specieName}`,
-          };
-        });
-
-        setLocations(formattedData);
-        setError(null);
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          const message = err.response?.data?.message || err.message;
-          setError(`API Error: ${message}`);
-        } else {
-          setError(err instanceof Error ? err.message : "Unknown error");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLocations();
-  }, [startDate, endDate, kilometers, userPosition]);
+    handleApplyFilters();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined" && navigator.geolocation) {
@@ -156,16 +173,17 @@ export default function MyMap() {
             <input
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => handleDateChange('start', e.target.value)}
               className="p-2 border rounded flex-1 min-w-[200px]"
               aria-label="Start date"
             />
             <input
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => handleDateChange('end', e.target.value)}
               className="p-2 border rounded flex-1 min-w-[200px]"
               aria-label="End date"
+              min={startDate}
             />
             <input
               type="number"
@@ -177,6 +195,12 @@ export default function MyMap() {
               disabled={geolocationBlocked || !userPosition}
               aria-label="Search radius in kilometers"
             />
+            <button
+              onClick={handleApplyFilters}
+              className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            >
+              Apply Filters
+            </button>
           </div>
 
           {geolocationBlocked ? (
